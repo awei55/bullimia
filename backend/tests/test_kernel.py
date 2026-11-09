@@ -149,3 +149,32 @@ def test_millionaire_milestone():
     
     assert kernel.account.equity >= 1000000.0
     assert kernel.account.is_millionaire is True
+
+
+def test_modifier_pipeline_integration():
+    """Verify that spread_multiplier and commission_rate modifiers alter execution and spread without breaking solvency invariants."""
+    kernel = QuantKernel(starting_cash=100000.0, commission_per_lot=1.0, contract_multiplier=10.0)
+    
+    # 1. Base spread vs NY4 Colocation tighter spread (0.70x)
+    base_spread = kernel.calculate_spread(100.0, atr_pct=0.02, spread_multiplier=1.0)
+    ny4_spread = kernel.calculate_spread(100.0, atr_pct=0.02, spread_multiplier=0.70)
+    assert ny4_spread < base_spread
+    assert ny4_spread == round(base_spread * 0.70, 4)
+
+    # 2. Execute order with Wholesale Internalizer (commission $0.75, spread 0.85x)
+    res = kernel.execute_order(
+        ticker="NVDA",
+        desired_side=PositionSide.BULL,
+        lots=10,
+        current_price=100.0,
+        timestamp="2024-01-02",
+        atr_pct=0.02,
+        spread_multiplier=0.85,
+        commission_rate=0.75
+    )
+    acc = res["account"]
+    # Commission for 10 lots at $0.75 should be exactly $7.50
+    assert acc["cash_balance"] == 99992.50
+    assert acc["total_commission_paid"] == 7.50
+    assert acc["open_lots"] == 10
+

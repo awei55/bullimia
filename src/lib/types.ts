@@ -1,3 +1,5 @@
+import type { TerminalShopState } from './engine/modifier_pipeline';
+
 export type PositionSide = 'FLAT' | 'BULL' | 'BEAR';
 
 export type GamePhase =
@@ -21,6 +23,7 @@ export interface SaveState {
     entryCandleIdx: number;
   } | null;
   tradeHistory: TradeRecord[];
+  shopState?: TerminalShopState;
   settings: {
     crtEnabled: boolean;
     masterVolume: number;

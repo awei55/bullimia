@@ -28,6 +28,10 @@
 | **Offline Static Fallback Resilience** | Infrastructure | ✅ Completed | E2E Verified | Zero-dependency resilience: static datasets bundled into `public/data/` so frontend runs even if backend is paused. |
 | **Domain Decoupling & Architecture Spec** | Architecture | ✅ Completed | Locked in `ARCHITECTURE.md` | Formal Hexagonal & Modifier Pipeline specifications ensuring characters, difficulties, market events, and minigames plug in without modifying the core quant kernel. |
 | **AI Context Memory Architecture** | System / Agent | ✅ Completed | Verified | 5-tier context memory architecture (`AGENTS.md`, `GEMINI.md`, `TRACKER.md`, `DATA_CATALOG.md`, `GAME_DESIGN_MEMORY.md`, `.agents/rules/`, `.agents/skills/bullimia-core/`) ensuring automatic memory retention and context loading across all chat sessions. |
+| **TradeContext Modifier Pipeline** | Layer 1/2 Architecture | ✅ Completed | 38/38 Unit Tests (100% Pass) | Pure functional modifier pipeline resolving Colocation Tiers, Venue Routing, and Minigame Buffs into immutable `TradeContext`. Supported in Python Kernel & TypeScript. |
+| **Terminal Infrastructure Shop** | Phase 2 Desk | ✅ Completed | 4/4 Vitest + Build Verified | Upgradable colocation (Retail Fiber, Microwave Link $150K, Secaucus NY4 $500K, Chicago CME $1.2M) and Asset Licenses (Commodities $250K, Global FX $500K, Crypto $750K). |
+| **IB Distraction Minigames** | Phase 2 Metagame | ✅ Completed | 3/3 Vitest + Build Verified | Cognitive micro-puzzles (Pitchbook Alignment 15s timer, SEC Compliance Wash Blotter, LBO Debt Waterfall) with tiered bounties ($25K, $150K, $500K) running while tape autoscrolls. |
+| **Time Dilation & Tactical Controls** | Phase 2 Engine | ✅ Completed | Verified | 0.5x, 1x, 2x, 5x speed controls with hotkeys (`[`, `]`, `\`) and `SPACE + ESC` neutral cash flattening. |
 
 ---
 
@@ -65,3 +69,8 @@
   3. `docs/DATA_CATALOG.md` capturing all generated datasets, level schemas, and API endpoints.
   4. `docs/GAME_DESIGN_MEMORY.md` capturing 4-phase game mechanics, Uncle Gordon benefactor triggers, and formulas.
   5. `.agents/rules/bullimia.md` & `.agents/skills/bullimia-core/SKILL.md` providing progressive operational runbooks for future agents. All 23 unit tests verified (13 Pytest + 10 Vitest).
+- **2026-11-10**: Engineered Phase 2 Independent Prop Desk ($1M - $10M) according to the Master Blueprint & Decoupled Architectural Manifesto:
+  1. **TradeContext Modifier Pipeline**: Implemented pure modifier evaluation (`resolveTradeContext`) in TypeScript and integrated `spread_multiplier` and `commission_rate` into `backend/bullimia_quant/kernel.py`. Total automated unit test suite expanded from 23 to 38 tests (14 Pytest + 24 Vitest, 100% passing).
+  2. **Terminal Infrastructure Shop**: Added upgradable colocation tiers (Retail Fiber 45ms $\rightarrow$ Dedicated Microwave 12ms $\rightarrow$ Secaucus NY4 0.8ms $\rightarrow$ Chicago CME 4ms) and asset class licenses (Commodities $250K, Global FX $500K, Crypto $750K) with persistent save support.
+  3. **IB Distraction Minigames**: Built interactive cognitive micro-puzzles (`Pitchbook Alignment`, `SEC Compliance Wash Audit`, `LBO Debt Waterfall`) with 15-25s ticking timers awarding tiered cash bonuses ($25,000, $150,000, $500,000) while live candlesticks autoscroll uninterrupted in the background.
+  4. **Tactical Time Dilation & Flattening**: Integrated 0.5x, 1x, 2x, 5x speed dilation with global hotkeys (`[`, `]`, `\`) and `SPACE + ESC` cash flattening. Verified zero-warning production build with `npm run build`.

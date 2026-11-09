@@ -1,4 +1,5 @@
 import type { SaveState, GamePhase, AccountState, TradeRecord, PositionSide } from '../types';
+import type { TerminalShopState } from '../engine/modifier_pipeline';
 
 const STORAGE_KEY = 'bullimia_career_save_v2';
 
@@ -35,6 +36,7 @@ export class SaveManager {
       entryCandleIdx: number;
     } | null;
     tradeHistory: TradeRecord[];
+    shopState?: TerminalShopState;
     settings?: {
       crtEnabled?: boolean;
       masterVolume?: number;
@@ -52,6 +54,7 @@ export class SaveManager {
       playerProgress: state.playerProgress,
       openPosition: state.openPosition,
       tradeHistory: state.tradeHistory,
+      shopState: state.shopState,
       settings: {
         crtEnabled: state.settings?.crtEnabled ?? true,
         masterVolume: state.settings?.masterVolume ?? 0.7,

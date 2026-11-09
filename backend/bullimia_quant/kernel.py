@@ -157,26 +157,27 @@ class QuantKernel:
                 )
             self._next_trade_id = max([t.id for t in self.trade_history] + [0]) + 1
 
-    def calculate_spread(self, current_price: float, atr_pct: float = 0.02) -> float:
+    def calculate_spread(self, current_price: float, atr_pct: float = 0.02, spread_multiplier: float = 1.0) -> float:
         """
         Dynamically calculates bid-ask spread based on price and asset volatility.
-        Base spread is ~0.08% of price, scaling with volatility.
+        Base spread is ~0.08% of price, scaling with volatility and modifier pipeline.
         """
         spread_pct = max(0.0005, min(0.005, atr_pct * 0.05))
-        return round(current_price * spread_pct, 4)
+        base_spread = current_price * spread_pct
+        return round(base_spread * max(0.2, spread_multiplier), 4)
 
-    def get_quotes(self, price: float, atr_pct: float = 0.02) -> Dict[str, float]:
-        spread = self.calculate_spread(price, atr_pct)
+    def get_quotes(self, price: float, atr_pct: float = 0.02, spread_multiplier: float = 1.0) -> Dict[str, float]:
+        spread = self.calculate_spread(price, atr_pct, spread_multiplier)
         half_spread = spread / 2.0
         bid = round(price - half_spread, 4)
         ask = round(price + half_spread, 4)
         return {"price": price, "bid": bid, "ask": ask, "spread": spread}
 
-    def update_mark_to_market(self, current_price: float, atr_pct: float = 0.02) -> AccountState:
+    def update_mark_to_market(self, current_price: float, atr_pct: float = 0.02, spread_multiplier: float = 1.0) -> AccountState:
         """
         Recalculates floating unrealized PnL, total equity, and margin levels.
         """
-        quotes = self.get_quotes(current_price, atr_pct)
+        quotes = self.get_quotes(current_price, atr_pct, spread_multiplier)
         bid = quotes["bid"]
         ask = quotes["ask"]
 
@@ -225,7 +226,9 @@ class QuantKernel:
         lots: int,
         current_price: float,
         timestamp: str,
-        atr_pct: float = 0.02
+        atr_pct: float = 0.02,
+        spread_multiplier: float = 1.0,
+        commission_rate: Optional[float] = None
     ) -> Dict[str, Any]:
         """
         Executes order state transition:
@@ -234,8 +237,9 @@ class QuantKernel:
         - If FLAT: opens new position.
         - If desired_side is FLAT: closes existing position and stays in cash (SPACE + ESC).
         """
+        effective_commission = self.commission_per_lot if commission_rate is None else commission_rate
         lots = max(1, min(100, lots))
-        quotes = self.get_quotes(current_price, atr_pct)
+        quotes = self.get_quotes(current_price, atr_pct, spread_multiplier)
         bid = quotes["bid"]
         ask = quotes["ask"]
 
@@ -252,7 +256,7 @@ class QuantKernel:
                 exit_price = ask
                 realized_pnl = (self.account.entry_price - exit_price) * self.account.open_lots * self.contract_multiplier
 
-            close_commission = self.commission_per_lot * self.account.open_lots
+            close_commission = effective_commission * self.account.open_lots
             self.account.cash_balance += (realized_pnl - close_commission)
             self.account.total_commission_paid += close_commission
 
@@ -288,7 +292,7 @@ class QuantKernel:
 
         # 2. Open new position if desired_side is not FLAT
         if desired_side != PositionSide.FLAT:
-            open_commission = self.commission_per_lot * lots
+            open_commission = effective_commission * lots
             self.account.cash_balance -= open_commission
             self.account.total_commission_paid += open_commission
 
@@ -304,7 +308,7 @@ class QuantKernel:
                 self.account.entry_price = bid
 
         # 3. Recalculate mark-to-market
-        self.update_mark_to_market(current_price, atr_pct)
+        self.update_mark_to_market(current_price, atr_pct, spread_multiplier)
 
         return {
             "account": self.account.to_dict(),

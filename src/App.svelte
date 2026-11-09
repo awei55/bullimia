@@ -9,6 +9,7 @@
   import DevConsoleModal from './lib/components/DevConsoleModal.svelte';
   import BenefactorModal from './lib/components/BenefactorModal.svelte';
   import NewsAlertBanner from './lib/components/NewsAlertBanner.svelte';
+  import IBMinigameModal from './lib/components/IBMinigameModal.svelte';
 
   import TradeConsoleView from './lib/views/TradeConsoleView.svelte';
   import BotStudioView from './lib/views/BotStudioView.svelte';
@@ -26,7 +27,11 @@
     wireUncleGordonCapital,
     triggerHeadlineAlert,
     isTradingActive,
+    timeDilation,
   } from './lib/stores/trading';
+  import { terminalShopState } from './lib/stores/terminal_shop';
+  import { triggerRandomOpportunity } from './lib/stores/minigame';
+  import { initialTerminalShopState } from './lib/engine/modifier_pipeline';
   import { soundEngine } from './lib/audio/soundtrack';
   import { SaveManager, getPhaseForEquity } from './lib/services/save_manager';
   import type { SaveState } from './lib/types';
@@ -71,7 +76,7 @@
       });
     }
 
-    // 3. Global Hotkeys (`~` for dev console, `T` for epoch, `M` for mute)
+    // 3. Global Hotkeys (`~` for dev console, `T` for epoch, `M` for mute, `[` / `]` for speed dilation)
     const handleGlobalKeys = (e: KeyboardEvent) => {
       if (['input', 'textarea'].includes((document.activeElement?.tagName || '').toLowerCase())) {
         return;
@@ -82,16 +87,27 @@
         handleJumpEpoch();
       } else if (e.key === 'm' || e.key === 'M') {
         soundEngine.toggleMute();
+      } else if (e.key === '[') {
+        timeDilation.set(0.5);
+      } else if (e.key === ']') {
+        timeDilation.update((s) => (s === 2.0 ? 5.0 : 2.0));
+      } else if (e.key === '\\') {
+        timeDilation.set(1.0);
       }
     };
     window.addEventListener('keydown', handleGlobalKeys);
 
-    // 4. Timer for Uncle Gordon 120s Trigger
+    // 4. Timer for Uncle Gordon 120s Trigger & IB Distraction Minigames
     timerInterval = setInterval(() => {
       if (!inStartMenu && $isTradingActive) {
         elapsedTradingSeconds += 1;
+        // Uncle Gordon 120s trigger
         if (elapsedTradingSeconds >= 120 && !$benefactorState.hasTriggeredWire) {
           wireUncleGordonCapital('time');
+        }
+        // Phase 2 IB Distraction Minigame trigger check (every 50s)
+        if (elapsedTradingSeconds % 50 === 0 && $account.equity >= 1000000.0) {
+          triggerRandomOpportunity();
         }
       }
     }, 1000);
@@ -114,6 +130,7 @@
   async function handleStartNewCareer() {
     await SaveManager.deleteCareer();
     await resetCareer(1000.0); // Genesis Tutorial starts with $1,000 USD
+    terminalShopState.set(initialTerminalShopState);
     elapsedTradingSeconds = 0;
     activeView = 'CHART';
     inStartMenu = false;
@@ -129,6 +146,9 @@
     account.set(save.account);
     tradeHistory.set(save.tradeHistory || []);
     crtEnabled = save.settings?.crtEnabled ?? true;
+    if (save.shopState) {
+      terminalShopState.set(save.shopState);
+    }
 
     // Check if wire was previously unlocked
     if (save.account.equity >= 10000.0) {
@@ -182,6 +202,7 @@
       playerProgress: progress,
       openPosition,
       tradeHistory: $tradeHistory,
+      shopState: $terminalShopState,
       settings: { crtEnabled },
     });
   }
@@ -348,6 +369,7 @@
   <!-- Modals -->
   {#if !inStartMenu && $isTradingActive}
     <BenefactorModal />
+    <IBMinigameModal />
   {/if}
 
   <OptionsModal
