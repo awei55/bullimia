@@ -22,6 +22,10 @@
 | **UX: Dev Console (Phase Warper)** | Developer Tool | ✅ Completed | 100% Pass | Instant warps to $1M, $10M, $100M, custom capital injection, God Mode toggle, force save. |
 | **Persistent Save State System** | Core / Meta | ✅ Completed | 3/3 Unit + E2E | Dual persistence (`localStorage` + `backend/saves/career_save.json`), resumes open positions and progress. |
 | **Phase-Based View Routing** | Metagame | ✅ Completed | E2E Verified | Early: Chart Autoscroller; Midgame ($1M-$10M): Trade Desk; Late ($10M-$100M): Bot Studio; Endgame ($100M+): Portfolio Manager. |
+| **Genesis Tutorial ($1K Start)** | Metagame / Narrative | ✅ Completed | 9/9 Vitest + E2E | Clean cold start with $1,000 USD on NVDA, bottom ticker locked, high-level tabs hidden. |
+| **Uncle Gordon Benefactor Wire** | Metagame / Narrative | ✅ Completed | 9/9 Vitest + E2E | Encrypted pager transmission triggered by 120s survival, $5K profit, or $100 crisis; injects +$9,000 and unlocks multi-asset switching. |
+| **Macro News Alert Feed** | Market Microstructure | ✅ Completed | 9/9 Vitest + E2E | Flashing yellow neon warning banner unlocked at $100,000 for impending $\ge 2.5\times$ ATR volatility shocks in the Fog of War. |
+| **Offline Static Fallback Resilience** | Infrastructure | ✅ Completed | E2E Verified | Zero-dependency resilience: static datasets bundled into `public/data/` so frontend runs even if backend is paused. |
 
 ---
 

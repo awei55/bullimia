@@ -95,6 +95,13 @@ def test_dev_warp_and_godmode():
     assert res_gm.status_code == 200
     assert res_gm.json()["god_mode"] is True
 
+    # Test Uncle Gordon Benefactor Wire (+$9,000)
+    client.post("/api/reset", json={"starting_cash": 1000.0})
+    res_wire = client.post("/api/wire")
+    assert res_wire.status_code == 200
+    assert res_wire.json()["account"]["cash_balance"] == 10000.0
+    assert res_wire.json()["account"]["equity"] == 10000.0
+
 
 def test_save_and_load_roundtrip():
     sample_save = {

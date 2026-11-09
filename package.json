@@ -4,9 +4,9 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"python -m uvicorn server:app --app-dir backend --port 8000\" \"vite\"",
+    "dev:frontend": "vite",
     "dev:backend": "python -m uvicorn server:app --app-dir backend --reload --port 8000",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev\"",
     "build": "vite build",
     "preview": "vite preview",
     "test:backend": "python -m pytest backend/tests -v",

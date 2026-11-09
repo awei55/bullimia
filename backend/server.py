@@ -189,6 +189,14 @@ def delete_career_save():
     return {"status": "ok", "account": kernel.account.to_dict()}
 
 
+@app.post("/api/wire")
+def inject_benefactor_wire():
+    kernel.account.cash_balance += 9000.0
+    kernel.account.equity += 9000.0
+    kernel.account.free_margin += 9000.0
+    return {"status": "ok", "account": kernel.account.to_dict()}
+
+
 @app.post("/api/dev/warp")
 def dev_warp_equity(payload: WarpPayload):
     kernel.set_equity(payload.equity)

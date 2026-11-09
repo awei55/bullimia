@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { account } from '../stores/trading';
-  import { X, Terminal, Zap, Shield, DollarSign, FastForward, Save } from 'lucide-svelte';
+  import { account, wireUncleGordonCapital } from '../stores/trading';
+  import { X, Terminal, Zap, Shield, DollarSign, FastForward, Save, Radio } from 'lucide-svelte';
 
   export let isOpen = false;
   export let onClose: () => void = () => {};
@@ -14,6 +14,12 @@
   async function handleWarp(amount: number) {
     await onWarpEquity(amount);
     statusMessage = `Warped equity to $${amount.toLocaleString()}`;
+    setTimeout(() => (statusMessage = ''), 3000);
+  }
+
+  function handleTriggerWire() {
+    wireUncleGordonCapital('profit');
+    statusMessage = 'Triggered Uncle Gordon wire transmission (+$9,000)!';
     setTimeout(() => (statusMessage = ''), 3000);
   }
 
@@ -79,16 +85,16 @@
             RAPID PHASE WARP (TESTING SPECIFICATIONS)
           </span>
           <div class="grid grid-cols-1 gap-2">
-            <!-- Phase 2 -->
+            <!-- Phase 4: 100M -->
             <button
-              on:click={() => handleWarp(1000000)}
-              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-bull/40 text-bull flex items-center justify-between transition font-bold"
+              on:click={() => handleWarp(100000000)}
+              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-purple/50 text-neon-cyan flex items-center justify-between transition font-bold"
             >
               <div class="flex items-center space-x-2">
-                <Zap class="w-4 h-4 text-bull" />
-                <span>WARP TO $1,000,000</span>
+                <Zap class="w-4 h-4 text-neon-cyan" />
+                <span>WARP TO $100,000,000</span>
               </div>
-              <span class="text-[10px] text-terminal-muted">PHASE 2: TRADE CONSOLE</span>
+              <span class="text-[10px] text-terminal-muted">PHASE 4: PORTFOLIO MANAGER</span>
             </button>
 
             <!-- Phase 3: 10M -->
@@ -103,25 +109,49 @@
               <span class="text-[10px] text-terminal-muted">PHASE 3: QUANT BOT STUDIO</span>
             </button>
 
-            <!-- Phase 4: 100M -->
+            <!-- Phase 2: 1M -->
             <button
-              on:click={() => handleWarp(100000000)}
-              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-purple/50 text-neon-cyan flex items-center justify-between transition font-bold"
+              on:click={() => handleWarp(1000000)}
+              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-bull/40 text-bull flex items-center justify-between transition font-bold"
             >
               <div class="flex items-center space-x-2">
-                <Zap class="w-4 h-4 text-neon-cyan" />
-                <span>WARP TO $100,000,000</span>
+                <Zap class="w-4 h-4 text-bull" />
+                <span>WARP TO $1,000,000</span>
               </div>
-              <span class="text-[10px] text-terminal-muted">PHASE 4: PORTFOLIO MANAGER</span>
+              <span class="text-[10px] text-terminal-muted">PHASE 2: TRADE CONSOLE</span>
             </button>
 
-            <!-- Reset to $10K -->
+            <!-- News Alerts: 100K -->
             <button
-              on:click={() => handleWarp(10000)}
-              class="w-full py-2 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-terminal-border text-terminal-text flex items-center justify-between transition"
+              on:click={() => handleWarp(100000)}
+              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-amber/30 text-neon-amber flex items-center justify-between transition font-bold"
             >
-              <span>RESET TO $10,000</span>
-              <span class="text-[10px] text-terminal-muted">PHASE 1: ARCADE TUTORIAL</span>
+              <div class="flex items-center space-x-2">
+                <Radio class="w-4 h-4 text-neon-amber" />
+                <span>WARP TO $100,000</span>
+              </div>
+              <span class="text-[10px] text-terminal-muted">PHASE 1: MACRO NEWS ALERTS</span>
+            </button>
+
+            <!-- Uncle Gordon Wire: +$9K -->
+            <button
+              on:click={handleTriggerWire}
+              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-cyan/40 text-neon-cyan flex items-center justify-between transition font-bold"
+            >
+              <div class="flex items-center space-x-2">
+                <DollarSign class="w-4 h-4 text-neon-cyan" />
+                <span>TRIGGER UNCLE GORDON WIRE</span>
+              </div>
+              <span class="text-[10px] text-terminal-muted">INJECT $9,000 & UNLOCK ASSETS</span>
+            </button>
+
+            <!-- Reset to $1K -->
+            <button
+              on:click={() => handleWarp(1000)}
+              class="w-full py-2 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-terminal-border text-terminal-muted flex items-center justify-between transition"
+            >
+              <span>RESET TO $1,000</span>
+              <span class="text-[10px] text-terminal-muted">GENESIS COLD START</span>
             </button>
           </div>
         </div>

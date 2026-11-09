@@ -97,44 +97,46 @@
 
   <!-- Center: Financial Telemetry & Phase View Tabs -->
   <div class="flex items-center space-x-6">
-    <!-- View Switcher Tabs -->
-    <div class="flex items-center space-x-1 bg-terminal-surface p-1 rounded-lg border border-terminal-border">
-      <!-- Chart View -->
-      <button
-        on:click={() => onChangeView('CHART')}
-        class="px-2.5 py-1 rounded text-xs transition {activeView === 'CHART' ? 'bg-terminal-border text-neon-cyan font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
-      >
-        CHART
-      </button>
-
-      <!-- Console View (Phase 2+) -->
-      <button
-        on:click={() => onChangeView('CONSOLE')}
-        class="px-2.5 py-1 rounded text-xs transition {activeView === 'CONSOLE' ? 'bg-terminal-border text-bull font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
-      >
-        DESK
-      </button>
-
-      <!-- Bot Studio View (Phase 3+) -->
-      {#if $account.equity >= 10000000}
+    <!-- View Switcher Tabs (Only unlocked if player has reached Phase 2: $1,000,000+) -->
+    {#if $account.equity >= 1000000}
+      <div class="flex items-center space-x-1 bg-terminal-surface p-1 rounded-lg border border-terminal-border">
+        <!-- Chart View -->
         <button
-          on:click={() => onChangeView('BOTS')}
-          class="px-2.5 py-1 rounded text-xs transition {activeView === 'BOTS' ? 'bg-terminal-border text-neon-amber font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+          on:click={() => onChangeView('CHART')}
+          class="px-2.5 py-1 rounded text-xs transition {activeView === 'CHART' ? 'bg-terminal-border text-neon-cyan font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
         >
-          BOTS
+          CHART
         </button>
-      {/if}
 
-      <!-- Portfolio Manager View (Phase 4+) -->
-      {#if $account.equity >= 100000000}
+        <!-- Console View (Phase 2+) -->
         <button
-          on:click={() => onChangeView('PORTFOLIO')}
-          class="px-2.5 py-1 rounded text-xs transition {activeView === 'PORTFOLIO' ? 'bg-terminal-border text-neon-cyan font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+          on:click={() => onChangeView('CONSOLE')}
+          class="px-2.5 py-1 rounded text-xs transition {activeView === 'CONSOLE' ? 'bg-terminal-border text-bull font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
         >
-          PORTFOLIO
+          DESK
         </button>
-      {/if}
-    </div>
+
+        <!-- Bot Studio View (Phase 3+) -->
+        {#if $account.equity >= 10000000}
+          <button
+            on:click={() => onChangeView('BOTS')}
+            class="px-2.5 py-1 rounded text-xs transition {activeView === 'BOTS' ? 'bg-terminal-border text-neon-amber font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+          >
+            BOTS
+          </button>
+        {/if}
+
+        <!-- Portfolio Manager View (Phase 4+) -->
+        {#if $account.equity >= 100000000}
+          <button
+            on:click={() => onChangeView('PORTFOLIO')}
+            class="px-2.5 py-1 rounded text-xs transition {activeView === 'PORTFOLIO' ? 'bg-terminal-border text-neon-cyan font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+          >
+            PORTFOLIO
+          </button>
+        {/if}
+      </div>
+    {/if}
 
     <!-- Total Equity -->
     <div class="flex flex-col items-center">

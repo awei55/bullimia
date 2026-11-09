@@ -3,7 +3,6 @@
   import { Shield, Zap, TrendingUp, Layers, Cpu, ArrowUpDown } from 'lucide-svelte';
 
   export let onFlatten: () => void = () => {};
-  export let onSwitchAsset: (ticker: string) => void = () => {};
 
   let selectedVenue = 'LIT_EXCHANGE';
   let orderLots = 10;
