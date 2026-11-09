@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { SaveManager, getPhaseTitle } from '../services/save_manager';
   import type { SaveState } from '../types';
-  import { Play, RotateCcw, Settings, Terminal, TrendingUp, Trophy, ArrowRight } from 'lucide-svelte';
+  import { Play, RotateCcw, Settings, Terminal, TrendingUp, Trophy, ArrowRight, Zap, ShieldAlert } from 'lucide-svelte';
 
   export let onStartNew: () => void = () => {};
   export let onResume: (save: SaveState) => void = () => {};
@@ -26,54 +26,56 @@
   }
 </script>
 
-<div class="fixed inset-0 z-40 flex items-center justify-center bg-terminal-bg/95 backdrop-blur-md p-6 select-none crt-overlay">
-  <div class="w-full max-w-xl bg-terminal-panel border border-terminal-border rounded-xl shadow-2xl overflow-hidden flex flex-col p-8 text-center relative">
-    <!-- Ambient Cyber Glows -->
-    <div class="absolute -top-24 -left-24 w-60 h-60 bg-bull/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-24 -right-24 w-60 h-60 bg-bear/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="fixed inset-0 z-40 flex items-center justify-center bg-black/85 backdrop-blur-md p-6 select-none crt-overlay">
+  <div class="w-full max-w-xl cel-panel cyber-clip rounded-none p-8 text-center relative animate-in fade-in zoom-in-95 duration-200">
+    <!-- Ambient Arcade Glows -->
+    <div class="absolute -top-24 -left-24 w-60 h-60 bg-bull/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-60 h-60 bg-bear/15 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Title Logo & Tagline -->
+    <!-- Arcade Header Banner -->
     <div class="mb-6">
-      <div class="flex items-center justify-center space-x-2 text-xs font-mono text-terminal-muted tracking-widest uppercase mb-1">
-        <span>EST. 2026</span>
-        <span>•</span>
-        <span>INSTITUTIONAL QUANT SIMULATOR</span>
+      <div class="inline-flex items-center space-x-2 px-3 py-1 bg-black/60 border border-neon-cyan/40 text-[9px] pixel-text text-neon-cyan tracking-widest uppercase mb-3">
+        <Zap class="w-3 h-3 text-neon-cyan animate-pulse" />
+        <span>CYBER-FINANCIAL 2D AUTOSCROLLER</span>
       </div>
-      <h1 class="text-5xl font-black font-display tracking-tight text-terminal-textBright flex items-center justify-center space-x-2">
-        <span class="text-bull text-glow-bull">BULL</span><span class="text-bear text-glow-bear">IMIA</span>
+
+      <!-- Giant Pixel Game Title -->
+      <h1 class="text-4xl sm:text-5xl font-black pixel-title tracking-tight text-white flex items-center justify-center space-x-1 my-2">
+        <span class="text-bull">BULL</span><span class="text-bear">IMIA</span>
       </h1>
-      <p class="text-xs font-mono text-neon-cyan mt-2 tracking-wider uppercase">
-        2D Japanese Candlestick Autoscroller // Macro & Microstructure
+      
+      <p class="text-[11px] pixel-text text-neon-amber mt-2 tracking-wide uppercase">
+        SURF THE TAPE • FLIP AT THE SPREAD • ESCAPE LIQUIDATION
       </p>
     </div>
 
-    <!-- Saved Career Summary Card (If Exists) -->
+    <!-- Active Save Card (If Exists) -->
     {#if savedGame}
-      <div class="bg-terminal-surface border border-bull/40 rounded-lg p-4 mb-6 text-left relative overflow-hidden">
+      <div class="cel-card p-4 mb-6 text-left relative overflow-hidden border-2 border-bull">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-mono uppercase tracking-widest text-bull font-bold flex items-center">
-            <TrendingUp class="w-3.5 h-3.5 mr-1" /> ACTIVE CAREER DETECTED
+          <span class="text-[9px] pixel-text uppercase tracking-widest text-bull font-bold flex items-center">
+            <TrendingUp class="w-3.5 h-3.5 mr-1.5" /> ACTIVE CAREER DETECTED // RESUME AVAILABLE
           </span>
-          <span class="text-[10px] font-mono text-terminal-muted">
+          <span class="text-[9px] pixel-text text-terminal-muted">
             {new Date(savedGame.timestamp).toLocaleDateString()}
           </span>
         </div>
         <div class="flex items-baseline justify-between">
           <div>
-            <div class="text-2xl font-bold font-mono text-bull text-glow-bull">
+            <div class="text-2xl font-black font-chakra text-bull text-glow-bull">
               {formatCurrency(savedGame.account.equity)}
             </div>
-            <div class="text-xs font-mono text-terminal-muted mt-0.5">
+            <div class="text-[10px] pixel-text text-terminal-muted mt-0.5">
               {getPhaseTitle(savedGame.phase)}
             </div>
           </div>
           {#if savedGame.openPosition && savedGame.openPosition.side !== 'FLAT'}
             <div class="text-right">
-              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold {savedGame.openPosition.side === 'BULL' ? 'bg-bull/20 text-bull border border-bull/40' : 'bg-bear/20 text-bear border border-bear/40'}">
-                {savedGame.openPosition.side} {savedGame.openPosition.lots}L @ ${savedGame.openPosition.entryPrice.toFixed(2)}
+              <span class="px-2.5 py-1 text-[10px] pixel-text font-bold {savedGame.openPosition.side === 'BULL' ? 'bg-bull text-black' : 'bg-bear text-white'} border border-black shadow-[2px_2px_0px_#000]">
+                {savedGame.openPosition.side} {savedGame.openPosition.lots}L
               </span>
-              <div class="text-[10px] font-mono text-terminal-muted mt-1">
-                Asset: {savedGame.currentLevelId}
+              <div class="text-[10px] font-mono text-neon-cyan mt-1.5">
+                ON {savedGame.currentLevelId}
               </div>
             </div>
           {/if}
@@ -81,61 +83,65 @@
       </div>
     {/if}
 
-    <!-- Main Menu Action Buttons -->
-    <div class="space-y-3 font-mono">
+    <!-- Main Arcade Buttons -->
+    <div class="space-y-3 font-chakra">
       {#if savedGame}
         <button
+          type="button"
           on:click={() => onResume(savedGame)}
-          class="w-full py-3.5 rounded-lg bg-bull hover:bg-bull-dark text-black font-bold tracking-wider text-sm shadow-lg shadow-bull/25 transition flex items-center justify-center space-x-2"
+          class="w-full py-3.5 cel-btn bg-bull hover:brightness-110 text-black font-black tracking-wider text-sm flex items-center justify-center space-x-2 cursor-pointer uppercase"
         >
           <Play class="w-4 h-4 fill-black" />
-          <span>RESUME ({formatCurrency(savedGame.account.equity)})</span>
+          <span>RESUME GAME ({formatCurrency(savedGame.account.equity)})</span>
           <ArrowRight class="w-4 h-4 ml-1" />
         </button>
 
         <button
+          type="button"
           on:click={onStartNew}
-          class="w-full py-2.5 rounded-lg bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border text-xs transition flex items-center justify-center space-x-2"
+          class="w-full py-2.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-terminal-text text-xs flex items-center justify-center space-x-2 cursor-pointer uppercase"
         >
-          <RotateCcw class="w-3.5 h-3.5" />
-          <span>RESTART ($1,000)</span>
+          <RotateCcw class="w-3.5 h-3.5 text-neon-amber" />
+          <span>NEW RUN ($1,000 GENESIS START)</span>
         </button>
       {:else}
         <button
+          type="button"
           on:click={onStartNew}
-          class="w-full py-4 rounded-lg bg-bull hover:bg-bull-dark text-black font-black tracking-widest text-lg shadow-xl shadow-bull/30 transition flex items-center justify-center space-x-2 uppercase"
+          class="w-full py-4 cel-btn bg-bull hover:brightness-110 text-black font-black tracking-widest text-base flex items-center justify-center space-x-2 cursor-pointer uppercase shadow-[4px_4px_0px_#000]"
         >
           <Play class="w-5 h-5 fill-black" />
-          <span>START</span>
+          <span class="pixel-text font-bold">START GAME ($1,000 USD)</span>
+          <ArrowRight class="w-5 h-5 ml-1" />
         </button>
       {/if}
 
-      <div class="grid grid-cols-2 gap-3 pt-2">
+      <!-- Options & Dev Console Grid -->
+      <div class="grid grid-cols-2 gap-2 pt-2">
         <button
+          type="button"
           on:click={onOpenOptions}
-          class="py-2.5 rounded-lg bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border text-xs transition flex items-center justify-center space-x-2"
+          class="py-2.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-terminal-text text-xs flex items-center justify-center space-x-1.5 cursor-pointer"
         >
-          <Settings class="w-4 h-4 text-terminal-muted" />
-          <span>OPTIONS</span>
+          <Settings class="w-3.5 h-3.5 text-terminal-muted" />
+          <span class="pixel-text text-[10px]">SETTINGS</span>
         </button>
 
         <button
+          type="button"
           on:click={onOpenDevConsole}
-          class="py-2.5 rounded-lg bg-terminal-surface hover:bg-terminal-border text-neon-cyan border border-neon-cyan/40 text-xs transition flex items-center justify-center space-x-2"
+          class="py-2.5 cel-btn bg-neon-cyan/20 hover:bg-neon-cyan/30 text-neon-cyan text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer"
         >
-          <Terminal class="w-4 h-4 text-neon-cyan" />
-          <span>DEV CONSOLE</span>
+          <Terminal class="w-3.5 h-3.5 text-neon-cyan" />
+          <span class="pixel-text text-[10px]">DEV WARP</span>
         </button>
       </div>
     </div>
 
-    <!-- Micro-Footer -->
-    <div class="mt-8 text-[11px] font-mono text-terminal-muted flex items-center justify-center space-x-4">
-      <span>TAURI v2 + SVELTE 5</span>
-      <span>•</span>
-      <span>PIXI.JS 8 WEBGL</span>
-      <span>•</span>
-      <span>PYTHON QUANT</span>
+    <!-- Footer Arcade Tag -->
+    <div class="mt-6 pt-4 border-t border-black text-[9px] pixel-text text-terminal-muted flex justify-between">
+      <span>TAP [SPACE] FLIP • HOLD [SPACE] LOTS</span>
+      <span class="text-neon-cyan">v2.1 INDIE ARCADE</span>
     </div>
   </div>
 </div>

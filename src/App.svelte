@@ -161,11 +161,12 @@
     }
 
     // Route to appropriate view based on phase
-    if (save.phase === 'PHASE_4_PORTFOLIO') {
+    const effectivePhase = save.phase || getPhaseForEquity(save.account.equity, save.account.cash_balance);
+    if (effectivePhase === 'PHASE_4_PORTFOLIO') {
       activeView = 'PORTFOLIO';
-    } else if (save.phase === 'PHASE_3_BOTS') {
+    } else if (effectivePhase === 'PHASE_3_BOTS') {
       activeView = 'BOTS';
-    } else if (save.phase === 'PHASE_2_CONSOLE') {
+    } else if (effectivePhase === 'PHASE_2_CONSOLE') {
       activeView = 'CONSOLE';
     } else {
       activeView = 'CHART';

@@ -82,6 +82,7 @@ export interface AccountState {
   is_margin_called: boolean;
   is_millionaire: boolean;
   high_watermark: number;
+  entry_candle_idx?: number;
 }
 
 export interface TradeRecord {

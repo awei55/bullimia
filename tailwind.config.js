@@ -33,6 +33,9 @@ export default {
       fontFamily: {
         mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
         display: ['Space Grotesk', 'Inter', 'sans-serif'],
+        pixel: ['"Press Start 2P"', 'monospace'],
+        silkscreen: ['Silkscreen', 'monospace'],
+        chakra: ['"Chakra Petch"', 'sans-serif'],
       },
       animation: {
         'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',

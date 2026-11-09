@@ -91,3 +91,44 @@ $$\text{Margin Level \%} = \frac{\text{Equity}}{\text{Margin Used}} \times 100\%
 - Long (BULL) opens at **Ask**, marked to market at current **Bid**.
 - Short (BEAR) opens at **Bid**, marked to market at current **Ask**.
 - Reversals immediately close the open position, deduct closing commission, settle realized PnL to cash, and open the new position.
+
+---
+
+## 4. Indie Visual Style, Kinematics & Presentation Standards
+
+### 4.1 Character Kinematics & Run Cycles
+- **Camera Horizon Centering**: The character is centered horizontally on screen (`targetCamX = playerX - screenW * 0.5`), keeping equal focus on the historical candlestick trail and the forward Fog of War corridor.
+- **The Bull (Long)**:
+  - 4-leg biomechanical galloping run cycle (`legAngle1` through `legAngle4` offset by $\pi/2$ phase shifts).
+  - Head bobbing with vertical breathing oscillation (`headBob = Math.sin(t * 8) * 3`).
+  - Solid metallic curved horns with specular golden highlights (`0xffd700`).
+  - Glowing emerald cyber-optic (`0x00ff88`).
+  - Flapping Wall Street red power tie (`0xff2244`) undulating with multi-point sine wave vertices.
+  - Articulated swishing tail with tufted tip.
+  - High-voltage lightning discharge arcs sparking around the horns when charging lot sizes.
+- **The Bear (Short)**:
+  - Inverted underside gallop (`scale.y = -1`), racing along the bottom corridor of the tape.
+  - Heavy grizzly shaggy coat contour with jagged fur silhouetting.
+  - Glowing crimson cyber-visor/shades (`0xff0055`) with high-contrast reflection.
+  - Curved razor claws with glowing trail effects.
+
+### 4.2 Dynamic Stochastic Brownian Volatility Fan
+- **20-Path Stochastic Fan**: 20 distinct Geometric Brownian Motion paths fan out into the Fog of War, updating continuously every 1.2s.
+- **Statistical Probability Cones**: Outer cones filled at $\pm 1\sigma$ and $\pm 2\sigma$ with alpha-faded fills.
+- **Glowing Terminal Beads**: Micro-orbs at the terminal tip of each path reflecting future projected price variance.
+
+### 4.3 MT5 Trade Overlays & Floating Position HUD
+- **Trade Connection Vectors**: Dashed lines connecting every historical entry to its corresponding exit point (neon emerald for net positive realized PnL, neon crimson for net loss).
+- **Entry & Exit Markers**: Solid triangles (`▲ BUY` / `▼ SELL`) at entry candle coordinates; circular targets at closing exit candle coordinates.
+- **Midpoint Realized PnL Pills**: High-contrast pill badge at the geometric midpoint displaying settled dollar PnL (`+$1,250.00`).
+- **Live Position Floating PnL**: Floating badge positioned beside the character (`playerX + 28, playerY - 24`), updating live ticks with an entry-tracking dotted laser beam connecting back to the initial entry price.
+
+### 4.4 Cel-Shaded Cyberpunk UI & Pixel Typography
+- **Typography Matrix**:
+  - Headings & Titles: `'Press Start 2P'` (retro 8-bit arcade headers).
+  - Data Values & HUD: `'Chakra Petch'` & `'Silkscreen'` (tactile cyber-terminal telemetry).
+  - Financial Tables: High-legibility monospaced tables with crisp tabular alignment.
+- **Cel-Shaded Geometry**:
+  - `cyber-clip`: 45-degree chamfered corners on cards and panels (`polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))`).
+  - Solid 2px-3px dark borders with sharp `4px 4px 0 #000` tactile dropshadows (no blurry Gaussian glows).
+  - Inset bevel highlights simulating physical backlit arcade buttons and arcade cabinet CRT bezels.

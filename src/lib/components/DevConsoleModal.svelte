@@ -56,109 +56,115 @@
 </script>
 
 {#if isOpen}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 select-none">
-    <div class="w-full max-w-lg bg-terminal-panel border border-neon-cyan/50 rounded-xl shadow-2xl overflow-hidden flex flex-col">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 select-none crt-overlay">
+    <div class="w-full max-w-lg cel-panel border-4 border-black p-0 shadow-[8px_8px_0_#000] cyber-clip overflow-hidden flex flex-col font-chakra">
       <!-- Header -->
-      <div class="px-5 py-4 border-b border-terminal-border flex items-center justify-between bg-terminal-surface">
+      <div class="px-5 py-3.5 border-b-2 border-black flex items-center justify-between bg-[#101622]">
         <div class="flex items-center space-x-2">
           <Terminal class="w-5 h-5 text-neon-cyan" />
-          <h2 class="text-sm font-bold font-mono tracking-wide text-neon-cyan uppercase">
+          <h2 class="text-sm font-black pixel-text tracking-wide text-neon-cyan uppercase">
             DEV CONSOLE // PHASE & BALANCE WARPER
           </h2>
         </div>
-        <button on:click={onClose} class="text-terminal-muted hover:text-terminal-textBright transition">
-          <X class="w-5 h-5" />
+        <button on:click={onClose} class="cel-btn p-1 bg-terminal-surface hover:bg-terminal-border text-white cursor-pointer">
+          <X class="w-4 h-4" />
         </button>
       </div>
 
       <!-- Body -->
-      <div class="p-6 space-y-5 font-mono text-xs">
+      <div class="p-5 space-y-4 text-xs bg-[#0a0e17]">
         {#if statusMessage}
-          <div class="bg-neon-cyan/15 border border-neon-cyan text-neon-cyan px-3 py-2 rounded text-center animate-pulse">
+          <div class="bg-neon-cyan/20 border-2 border-neon-cyan text-neon-cyan px-3 py-2 text-center pixel-text text-[9px] shadow-[2px_2px_0_#000]">
             {statusMessage}
           </div>
         {/if}
 
         <!-- Quick Phase Warps -->
         <div>
-          <span class="text-[10px] uppercase tracking-wider text-terminal-muted block mb-2 font-bold">
-            RAPID PHASE WARP (TESTING SPECIFICATIONS)
+          <span class="pixel-text text-[9px] text-terminal-muted block mb-2 font-bold uppercase">
+            RAPID PHASE WARP
           </span>
           <div class="grid grid-cols-1 gap-2">
             <!-- Phase 4: 100M -->
             <button
+              type="button"
               on:click={() => handleWarp(100000000)}
-              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-purple/50 text-neon-cyan flex items-center justify-between transition font-bold"
+              class="w-full py-2.5 px-3 cel-btn bg-terminal-surface hover:bg-terminal-border text-neon-cyan flex items-center justify-between cursor-pointer font-bold"
             >
               <div class="flex items-center space-x-2">
                 <Zap class="w-4 h-4 text-neon-cyan" />
-                <span>WARP TO $100,000,000</span>
+                <span class="pixel-text text-[9px]">WARP TO $100,000,000</span>
               </div>
-              <span class="text-[10px] text-terminal-muted">PHASE 4: PORTFOLIO MANAGER</span>
+              <span class="text-[10px] text-terminal-muted">PHASE 4: SOVEREIGN DESK</span>
             </button>
 
             <!-- Phase 3: 10M -->
             <button
+              type="button"
               on:click={() => handleWarp(10000000)}
-              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-amber/40 text-neon-amber flex items-center justify-between transition font-bold"
+              class="w-full py-2.5 px-3 cel-btn bg-terminal-surface hover:bg-terminal-border text-neon-amber flex items-center justify-between cursor-pointer font-bold"
             >
               <div class="flex items-center space-x-2">
                 <Zap class="w-4 h-4 text-neon-amber" />
-                <span>WARP TO $10,000,000</span>
+                <span class="pixel-text text-[9px]">WARP TO $10,000,000</span>
               </div>
-              <span class="text-[10px] text-terminal-muted">PHASE 3: QUANT BOT STUDIO</span>
+              <span class="text-[10px] text-terminal-muted">PHASE 3: QUANT BOTS</span>
             </button>
 
             <!-- Phase 2: 1M -->
             <button
+              type="button"
               on:click={() => handleWarp(1000000)}
-              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-bull/40 text-bull flex items-center justify-between transition font-bold"
+              class="w-full py-2.5 px-3 cel-btn bg-terminal-surface hover:bg-terminal-border text-bull flex items-center justify-between cursor-pointer font-bold"
             >
               <div class="flex items-center space-x-2">
                 <Zap class="w-4 h-4 text-bull" />
-                <span>WARP TO $1,000,000</span>
+                <span class="pixel-text text-[9px]">WARP TO $1,000,000</span>
               </div>
-              <span class="text-[10px] text-terminal-muted">PHASE 2: TRADE CONSOLE</span>
+              <span class="text-[10px] text-terminal-muted">PHASE 2: PROP DESK</span>
             </button>
 
             <!-- News Alerts: 100K -->
             <button
+              type="button"
               on:click={() => handleWarp(100000)}
-              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-amber/30 text-neon-amber flex items-center justify-between transition font-bold"
+              class="w-full py-2.5 px-3 cel-btn bg-terminal-surface hover:bg-terminal-border text-neon-amber flex items-center justify-between cursor-pointer font-bold"
             >
               <div class="flex items-center space-x-2">
                 <Radio class="w-4 h-4 text-neon-amber" />
-                <span>WARP TO $100,000</span>
+                <span class="pixel-text text-[9px]">WARP TO $100,000</span>
               </div>
-              <span class="text-[10px] text-terminal-muted">PHASE 1: MACRO NEWS ALERTS</span>
+              <span class="text-[10px] text-terminal-muted">UNLOCK NEWS ALERTS</span>
             </button>
 
             <!-- Uncle Gordon Wire: +$9K -->
             <button
+              type="button"
               on:click={handleTriggerWire}
-              class="w-full py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-neon-cyan/40 text-neon-cyan flex items-center justify-between transition font-bold"
+              class="w-full py-2.5 px-3 cel-btn bg-neon-cyan/20 hover:bg-neon-cyan/30 text-neon-cyan flex items-center justify-between cursor-pointer font-bold"
             >
               <div class="flex items-center space-x-2">
                 <DollarSign class="w-4 h-4 text-neon-cyan" />
-                <span>TRIGGER UNCLE GORDON WIRE</span>
+                <span class="pixel-text text-[9px]">TRIGGER UNCLE GORDON WIRE</span>
               </div>
-              <span class="text-[10px] text-terminal-muted">INJECT $9,000 & UNLOCK ASSETS</span>
+              <span class="text-[10px] text-terminal-muted">+$9,000 & MULTI-ASSET</span>
             </button>
 
             <!-- Reset to $1K -->
             <button
+              type="button"
               on:click={() => handleWarp(1000)}
-              class="w-full py-2 px-3 rounded bg-terminal-surface hover:bg-terminal-border border border-terminal-border text-terminal-muted flex items-center justify-between transition"
+              class="w-full py-2 px-3 cel-btn bg-terminal-surface hover:bg-terminal-border text-terminal-muted flex items-center justify-between cursor-pointer"
             >
-              <span>RESET TO $1,000</span>
+              <span class="pixel-text text-[9px]">RESET TO $1,000</span>
               <span class="text-[10px] text-terminal-muted">GENESIS COLD START</span>
             </button>
           </div>
         </div>
 
         <!-- Custom Capital Injection -->
-        <div class="pt-2 border-t border-terminal-border">
-          <span class="text-[10px] uppercase tracking-wider text-terminal-muted block mb-2 font-bold">
+        <div class="pt-3 border-t-2 border-black">
+          <span class="pixel-text text-[9px] text-terminal-muted block mb-2 font-bold uppercase">
             CUSTOM CAPITAL INJECTION ($)
           </span>
           <div class="flex space-x-2">
@@ -166,43 +172,47 @@
               type="text"
               bind:value={customEquityInput}
               placeholder="e.g. 25000000"
-              class="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-terminal-text focus:outline-none focus:border-neon-cyan font-mono"
+              class="flex-1 bg-black text-white border-2 border-black px-3 py-1.5 focus:outline-none focus:border-neon-cyan font-chakra"
             />
             <button
+              type="button"
               on:click={handleCustomInject}
-              class="px-4 py-2 rounded bg-neon-cyan/20 hover:bg-neon-cyan/30 text-neon-cyan border border-neon-cyan/40 font-bold transition flex items-center space-x-1"
+              class="px-4 py-1.5 cel-btn bg-neon-cyan hover:brightness-110 text-black font-black pixel-text text-[9px] flex items-center space-x-1 cursor-pointer"
             >
-              <DollarSign class="w-4 h-4" />
+              <DollarSign class="w-3.5 h-3.5" />
               <span>INJECT</span>
             </button>
           </div>
         </div>
 
         <!-- Testing Utilities (God Mode & Force Save) -->
-        <div class="pt-2 border-t border-terminal-border grid grid-cols-2 gap-3">
+        <div class="pt-3 border-t-2 border-black grid grid-cols-2 gap-2">
           <button
+            type="button"
             on:click={toggleGodMode}
-            class="py-2.5 px-3 rounded border transition flex items-center justify-center space-x-2 font-bold {godModeEnabled ? 'bg-bull/20 text-bull border-bull' : 'bg-terminal-surface text-terminal-muted border-terminal-border'}"
+            class="py-2.5 px-3 cel-btn flex items-center justify-center space-x-2 font-black pixel-text text-[9px] cursor-pointer {godModeEnabled ? 'bg-bull text-black' : 'bg-terminal-surface text-terminal-muted'}"
           >
             <Shield class="w-4 h-4" />
             <span>GOD MODE: {godModeEnabled ? 'ON' : 'OFF'}</span>
           </button>
 
           <button
+            type="button"
             on:click={handleManualSave}
-            class="py-2.5 px-3 rounded bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border transition flex items-center justify-center space-x-2 font-bold"
+            class="py-2.5 px-3 cel-btn bg-terminal-surface hover:bg-terminal-border text-white flex items-center justify-center space-x-2 font-black pixel-text text-[9px] cursor-pointer"
           >
             <Save class="w-4 h-4 text-neon-cyan" />
-            <span>FORCE SAVE NOW</span>
+            <span>FORCE SAVE</span>
           </button>
         </div>
       </div>
 
       <!-- Footer -->
-      <div class="px-5 py-3 border-t border-terminal-border bg-terminal-surface flex justify-end font-mono">
+      <div class="px-5 py-3 border-t-2 border-black bg-[#101622] flex justify-end">
         <button
+          type="button"
           on:click={onClose}
-          class="px-4 py-1.5 rounded bg-terminal-border hover:bg-terminal-borderLight text-terminal-text text-xs transition"
+          class="px-4 py-2 cel-btn bg-terminal-surface hover:bg-terminal-border text-white pixel-text text-xs cursor-pointer"
         >
           CLOSE
         </button>

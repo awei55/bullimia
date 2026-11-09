@@ -181,7 +181,8 @@ export async function executeOrder(
   lots: number,
   price: number,
   timestamp: string,
-  atrPct: number = 0.02
+  atrPct: number = 0.02,
+  candleIdx: number = 0
 ) {
   // If WS is available, send via WS
   if (ws && ws.readyState === WebSocket.OPEN) {
@@ -193,6 +194,7 @@ export async function executeOrder(
       price,
       timestamp,
       atr_pct: atrPct,
+      candle_idx: candleIdx,
     }));
     soundEngine.playOrderExecuted(side, lots);
     return;
@@ -211,6 +213,7 @@ export async function executeOrder(
         current_price: price,
         timestamp,
         atr_pct: atrPct,
+        candle_idx: candleIdx,
       }),
     });
     if (res.ok) {
@@ -218,7 +221,13 @@ export async function executeOrder(
       account.set(data.account);
       if (data.quotes) quotes.set(data.quotes);
       if (data.closed_trade) {
-        tradeHistory.update((h) => [...h, data.closed_trade]);
+        // Ensure candle indices are set for MT5 lines
+        const enrichedTrade = {
+          ...data.closed_trade,
+          entry_candle_idx: data.closed_trade.entry_candle_idx ?? get(account).entry_candle_idx ?? Math.max(0, candleIdx - 10),
+          exit_candle_idx: data.closed_trade.exit_candle_idx ?? candleIdx,
+        };
+        tradeHistory.update((h) => [...h, enrichedTrade]);
         if (data.closed_trade.is_win) {
           soundEngine.playWin(data.closed_trade.pnl);
         } else {
@@ -231,7 +240,7 @@ export async function executeOrder(
 
   // Deterministic Client-Side Fallback if backend is offline
   if (!handledOnBackend) {
-    clientSideExecuteOrder(ticker, side, lots, price, timestamp, atrPct);
+    clientSideExecuteOrder(ticker, side, lots, price, timestamp, atrPct, candleIdx);
   }
 
   soundEngine.playOrderExecuted(side, lots);
@@ -243,7 +252,8 @@ function clientSideExecuteOrder(
   lots: number,
   price: number,
   timestamp: string,
-  atrPct: number
+  atrPct: number,
+  candleIdx: number = 0
 ) {
   account.update((acc) => {
     const spread = price * (atrPct * 0.05);
@@ -278,6 +288,8 @@ function clientSideExecuteOrder(
         pnl: realizedPnl - commission,
         commission_paid: commission,
         is_win: isWin,
+        entry_candle_idx: acc.entry_candle_idx ?? Math.max(0, candleIdx - 15),
+        exit_candle_idx: candleIdx,
       };
       tradeHistory.update((h) => [...h, closedTrade!]);
       if (isWin) soundEngine.playWin(realizedPnl);
@@ -293,11 +305,13 @@ function clientSideExecuteOrder(
       acc.open_lots = lots;
       acc.entry_price = side === 'BULL' ? ask : bid;
       acc.entry_timestamp = timestamp;
+      acc.entry_candle_idx = candleIdx;
     } else {
       acc.side = 'FLAT';
       acc.open_lots = 0;
       acc.entry_price = 0;
       acc.entry_timestamp = '';
+      acc.entry_candle_idx = undefined;
     }
 
     acc.win_rate_pct = acc.trade_count > 0 ? Number((acc.winning_trades / acc.trade_count * 100).toFixed(1)) : 0;

@@ -16,10 +16,61 @@
   display: block;
   position: absolute;
   top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
   z-index: 20;
   background-size: 100% 3px, 6px 100%;
   pointer-events: none;
+}
+
+/* Cel-Shaded Indie Game & Futuristic Geometry Primitives */
+.cel-panel {
+  background: #0c101a;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0px #000, 4px 4px 0px rgba(0, 229, 255, 0.4);
+}
+
+.cel-card {
+  background: #121826;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0px #000;
+}
+
+.cel-btn {
+  border: 2px solid #000;
+  box-shadow: 3px 3px 0px #000;
+  transition: all 0.08s ease-in-out;
+}
+
+.cel-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000;
+}
+
+.cel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000;
+}
+
+.cyber-clip {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+.cyber-clip-sm {
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+
+.cyber-cut-left {
+  clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+}
+
+.pixel-title {
+  font-family: 'Press Start 2P', monospace;
+  text-shadow: 3px 3px 0px #000, 0 0 12px rgba(0, 229, 255, 0.6);
+}
+
+.pixel-text {
+  font-family: 'Silkscreen', monospace;
+  letter-spacing: 0.5px;
 }
 
 /* Subtle glowing text */

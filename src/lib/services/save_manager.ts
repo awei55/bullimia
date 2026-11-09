@@ -3,10 +3,11 @@ import type { TerminalShopState } from '../engine/modifier_pipeline';
 
 const STORAGE_KEY = 'bullimia_career_save_v2';
 
-export function getPhaseForEquity(equity: number): GamePhase {
-  if (equity >= 100000000) return 'PHASE_4_PORTFOLIO';
-  if (equity >= 10000000) return 'PHASE_3_BOTS';
-  if (equity >= 1000000) return 'PHASE_2_CONSOLE';
+export function getPhaseForEquity(equity: number, cash?: number): GamePhase {
+  const effective = Math.max(equity, cash ?? equity);
+  if (effective >= 100000000) return 'PHASE_4_PORTFOLIO';
+  if (effective >= 10000000) return 'PHASE_3_BOTS';
+  if (effective >= 1000000) return 'PHASE_2_CONSOLE';
   return 'PHASE_1_CHART';
 }
 
@@ -44,7 +45,7 @@ export class SaveManager {
       sfxVolume?: number;
     };
   }): Promise<SaveState> {
-    const phase = getPhaseForEquity(state.account.equity);
+    const phase = getPhaseForEquity(state.account.equity, state.account.cash_balance);
     const saveState: SaveState = {
       version: '2.0.0',
       timestamp: new Date().toISOString(),

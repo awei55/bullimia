@@ -1,7 +1,7 @@
 <script lang="ts">
   import { account, quotes, currentLevel, timeDilation } from '../stores/trading';
   import { soundEngine } from '../audio/soundtrack';
-  import { Volume2, VolumeX, History, FastForward, Trophy, Terminal, Settings, Home, LayoutDashboard, Bot, Landmark } from 'lucide-svelte';
+  import { Volume2, VolumeX, History, FastForward, Trophy, Terminal, Settings, Home, LayoutDashboard, Bot, Landmark, Zap } from 'lucide-svelte';
 
   export let activeView: 'CHART' | 'CONSOLE' | 'BOTS' | 'PORTFOLIO' = 'CHART';
   export let onChangeView: (view: 'CHART' | 'CONSOLE' | 'BOTS' | 'PORTFOLIO') => void = () => {};
@@ -35,102 +35,100 @@
   }
 </script>
 
-<header class="h-16 bg-terminal-panel border-b border-terminal-border px-4 flex items-center justify-between select-none z-10 shadow-lg font-mono">
-  <!-- Left: Home / Asset Info & Career Milestone -->
+<header class="h-16 bg-[#090d16] border-b-2 border-black px-4 flex items-center justify-between select-none z-10 shadow-[0_4px_0_#000] font-chakra">
+  <!-- Left: Arcade Home Button, Asset Title & Mode Badge -->
   <div class="flex items-center space-x-3">
     <!-- Home / Menu Button -->
     <button
       on:click={onOpenMenu}
-      class="p-2 rounded bg-terminal-surface hover:bg-terminal-border text-terminal-muted hover:text-terminal-textBright border border-terminal-border transition"
+      class="p-2 cel-btn bg-terminal-surface hover:bg-terminal-border text-neon-cyan cursor-pointer"
       title="Save & Return to Main Menu"
     >
       <Home class="w-4 h-4 text-neon-cyan" />
     </button>
 
+    <!-- Asset Telemetry Block -->
     <div class="flex flex-col">
-      <div class="flex items-center space-x-2">
-        <span class="text-[10px] uppercase tracking-widest text-terminal-muted font-bold">ASSET</span>
+      <div class="flex items-center space-x-1.5">
+        <span class="text-[9px] pixel-text text-terminal-muted font-bold">ASSET:</span>
         {#if $account.equity >= 100000000}
-          <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40">
+          <span class="px-1.5 py-0.2 text-[8px] pixel-text font-bold bg-neon-cyan text-black border border-black">
             SOVEREIGN
           </span>
         {:else if $account.equity >= 10000000}
-          <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-neon-amber/20 text-neon-amber border border-neon-amber/40">
+          <span class="px-1.5 py-0.2 text-[8px] pixel-text font-bold bg-neon-amber text-black border border-black">
             QUANT FUND
           </span>
         {:else if $account.equity >= 1000000}
-          <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-bull/20 text-bull border border-bull/40">
-            PROP TRADER
+          <span class="px-1.5 py-0.2 text-[8px] pixel-text font-bold bg-bull text-black border border-black">
+            PROP DESK
           </span>
         {/if}
       </div>
+
       <div class="flex items-baseline space-x-2">
-        <h1 class="text-xl font-bold tracking-tight text-terminal-textBright">
+        <h1 class="text-xl font-black pixel-text text-white tracking-wider">
           {$currentLevel ? $currentLevel.ticker : 'LOADING...'}
         </h1>
-        <span class="text-xs text-terminal-muted truncate max-w-[120px] hidden sm:inline">
+        <span class="text-[10px] text-terminal-muted truncate max-w-[110px] hidden sm:inline">
           {$currentLevel ? $currentLevel.name : ''}
         </span>
       </div>
     </div>
 
-    <!-- Position Badge -->
-    <div class="pl-3 border-l border-terminal-border flex flex-col hidden sm:flex">
-      <span class="text-[9px] uppercase tracking-wider text-terminal-muted">POSITION</span>
+    <!-- Active Position Badge -->
+    <div class="pl-3 border-l-2 border-black flex flex-col hidden sm:flex">
+      <span class="text-[8px] pixel-text text-terminal-muted">SIDE</span>
       <div class="flex items-center space-x-1 mt-0.5">
         {#if $account.side === 'BULL'}
-          <span class="px-2 py-0.5 text-xs font-bold rounded bg-bull/20 text-bull border border-bull/40 text-glow-bull animate-pulse">
+          <span class="px-2 py-0.5 text-[10px] pixel-text font-bold bg-bull text-black border border-black shadow-[2px_2px_0_#000] animate-pulse">
             ▲ LONG {$account.open_lots}L
           </span>
         {:else if $account.side === 'BEAR'}
-          <span class="px-2 py-0.5 text-xs font-bold rounded bg-bear/20 text-bear border border-bear/40 text-glow-bear animate-pulse">
+          <span class="px-2 py-0.5 text-[10px] pixel-text font-bold bg-bear text-white border border-black shadow-[2px_2px_0_#000] animate-pulse">
             ▼ SHORT {$account.open_lots}L
           </span>
         {:else}
-          <span class="px-2 py-0.5 text-xs font-bold rounded bg-terminal-surface text-neon-cyan border border-neon-cyan/30">
-            ● 100% CASH
+          <span class="px-2 py-0.5 text-[10px] pixel-text font-bold bg-terminal-surface text-neon-cyan border border-black">
+            ● FLAT CASH
           </span>
         {/if}
       </div>
     </div>
   </div>
 
-  <!-- Center: Financial Telemetry & Phase View Tabs -->
+  <!-- Center: Financial Telemetry & Phase Switchers -->
   <div class="flex items-center space-x-6">
-    <!-- View Switcher Tabs (Only unlocked if player has reached Phase 2: $1,000,000+) -->
+    <!-- View Switcher Tabs (Unlocked at $1M+) -->
     {#if $account.equity >= 1000000}
-      <div class="flex items-center space-x-1 bg-terminal-surface p-1 rounded-lg border border-terminal-border">
-        <!-- Chart View -->
+      <div class="flex items-center space-x-1 bg-black p-1 border-2 border-black cyber-clip-sm">
         <button
           on:click={() => onChangeView('CHART')}
-          class="px-2.5 py-1 rounded text-xs transition {activeView === 'CHART' ? 'bg-terminal-border text-neon-cyan font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+          class="px-2.5 py-1 text-[10px] pixel-text font-bold transition {activeView === 'CHART' ? 'bg-neon-cyan text-black' : 'text-terminal-muted hover:text-white'}"
         >
           CHART
         </button>
 
-        <!-- Console View (Phase 2+) -->
         <button
           on:click={() => onChangeView('CONSOLE')}
-          class="px-2.5 py-1 rounded text-xs transition {activeView === 'CONSOLE' ? 'bg-terminal-border text-bull font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+          class="px-2.5 py-1 text-[10px] pixel-text font-bold transition {activeView === 'CONSOLE' ? 'bg-bull text-black' : 'text-terminal-muted hover:text-white'}"
         >
-          DESK
+          PROP DESK
         </button>
 
-        <!-- Bot Studio View (Phase 3+) -->
         {#if $account.equity >= 10000000}
           <button
             on:click={() => onChangeView('BOTS')}
-            class="px-2.5 py-1 rounded text-xs transition {activeView === 'BOTS' ? 'bg-terminal-border text-neon-amber font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+            class="px-2.5 py-1 text-[10px] pixel-text font-bold transition {activeView === 'BOTS' ? 'bg-neon-amber text-black' : 'text-terminal-muted hover:text-white'}"
           >
             BOTS
           </button>
         {/if}
 
-        <!-- Portfolio Manager View (Phase 4+) -->
         {#if $account.equity >= 100000000}
           <button
             on:click={() => onChangeView('PORTFOLIO')}
-            class="px-2.5 py-1 rounded text-xs transition {activeView === 'PORTFOLIO' ? 'bg-terminal-border text-neon-cyan font-bold shadow' : 'text-terminal-muted hover:text-terminal-text'}"
+            class="px-2.5 py-1 text-[10px] pixel-text font-bold transition {activeView === 'PORTFOLIO' ? 'bg-neon-cyan text-black' : 'text-terminal-muted hover:text-white'}"
           >
             PORTFOLIO
           </button>
@@ -138,89 +136,90 @@
       </div>
     {/if}
 
-    <!-- Total Equity -->
-    <div class="flex flex-col items-center">
-      <span class="text-[9px] uppercase tracking-wider text-terminal-muted">TOTAL EQUITY</span>
-      <span class="text-xl font-bold tracking-tight {$account.equity >= 10000 ? 'text-bull text-glow-bull' : 'text-bear text-glow-bear'}">
+    <!-- Total Equity Plate -->
+    <div class="flex flex-col items-center px-3 py-1 bg-black/60 border border-black cyber-clip-sm">
+      <span class="text-[8px] pixel-text text-terminal-muted">TOTAL EQUITY</span>
+      <span class="text-lg sm:text-xl font-black font-chakra tracking-tight {$account.equity >= 10000 ? 'text-bull text-glow-bull' : 'text-bear text-glow-bear'}">
         {formatCurrency($account.equity)}
       </span>
     </div>
 
-    <!-- Floating Unrealized PnL -->
-    <div class="flex flex-col items-center hidden md:flex">
-      <span class="text-[9px] uppercase tracking-wider text-terminal-muted">UNREALIZED P&L</span>
-      <span class="text-sm font-bold {$account.unrealized_pnl >= 0 ? 'text-bull' : 'text-bear'}">
+    <!-- Floating Unrealized PnL Plate -->
+    <div class="flex flex-col items-center px-3 py-1 bg-black/60 border border-black cyber-clip-sm hidden md:flex">
+      <span class="text-[8px] pixel-text text-terminal-muted">LIVE P&L</span>
+      <span class="text-sm font-bold font-chakra {$account.unrealized_pnl >= 0 ? 'text-bull' : 'text-bear'}">
         {$account.unrealized_pnl >= 0 ? '+' : ''}{formatCurrency($account.unrealized_pnl)}
       </span>
     </div>
 
-    <!-- Quotes & Spread -->
-    <div class="flex flex-col items-end border-l border-terminal-border pl-4 hidden lg:flex">
-      <div class="flex items-center space-x-2 text-xs">
+    <!-- Live Bid / Ask / Spread -->
+    <div class="flex flex-col items-end border-l-2 border-black pl-4 hidden lg:flex">
+      <div class="flex items-center space-x-2 text-[11px] font-chakra font-bold">
         <span class="text-terminal-muted">BID:</span>
-        <span class="text-terminal-text font-bold">{$quotes.bid.toFixed(2)}</span>
+        <span class="text-bull">{$quotes.bid.toFixed(2)}</span>
         <span class="text-terminal-muted ml-1">ASK:</span>
-        <span class="text-terminal-text font-bold">{$quotes.ask.toFixed(2)}</span>
+        <span class="text-bear">{$quotes.ask.toFixed(2)}</span>
       </div>
-      <span class="text-[10px] text-neon-cyan mt-0.5">
-        SPREAD: {$quotes.spread.toFixed(2)}
+      <span class="text-[9px] pixel-text text-neon-cyan mt-0.5">
+        SPD: ${$quotes.spread.toFixed(2)}
       </span>
     </div>
   </div>
 
-  <!-- Right: Controls, Speed, Dev, Options, Sound, Log -->
+  <!-- Right: Arcade Speed, Random Epoch, Dev, Ledger, Settings, Sound -->
   <div class="flex items-center space-x-2">
     <!-- Time Dilation Button -->
     <button
       on:click={cycleSpeed}
-      class="flex items-center space-x-1 px-2.5 py-1.5 rounded bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border transition text-xs"
+      class="flex items-center space-x-1 px-2.5 py-1.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-xs cursor-pointer"
       title="Toggle Time Speed (0.5x, 1x, 2x, 5x)"
     >
       <FastForward class="w-3.5 h-3.5 text-neon-cyan" />
-      <span>{$timeDilation}x</span>
+      <span class="pixel-text text-[9px] text-neon-cyan">{$timeDilation}X</span>
     </button>
 
     <!-- Random Epoch Jump Button -->
     <button
       on:click={onJumpEpoch}
-      class="px-2.5 py-1.5 rounded bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border transition text-xs"
+      class="px-2.5 py-1.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-xs cursor-pointer"
       title="Jump to Random Epoch (T)"
     >
-      🎲 EPOCH
+      <span class="pixel-text text-[9px] text-neon-amber">🎲 EPOCH</span>
     </button>
 
     <!-- Dev Console Button -->
     <button
       on:click={onOpenDevConsole}
-      class="px-2.5 py-1.5 rounded bg-neon-cyan/15 hover:bg-neon-cyan/25 text-neon-cyan border border-neon-cyan/40 transition text-xs font-bold"
-      title="Open Dev Console (~ / Backtick)"
+      class="px-2.5 py-1.5 cel-btn bg-neon-cyan/25 hover:bg-neon-cyan/35 text-neon-cyan text-xs font-bold cursor-pointer"
+      title="Open Dev Console (~)"
     >
-      <Terminal class="w-3.5 h-3.5 inline mr-1" />DEV
+      <Terminal class="w-3.5 h-3.5 inline mr-1" />
+      <span class="pixel-text text-[9px]">DEV</span>
     </button>
 
     <!-- Trade History Ledger -->
     <button
       on:click={onOpenTradeLog}
-      class="p-1.5 rounded bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border transition"
+      class="p-1.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-terminal-text cursor-pointer"
       title="Open MT5 Trade Ledger"
     >
-      <History class="w-4 h-4 text-terminal-muted hover:text-terminal-textBright" />
+      <History class="w-4 h-4 text-neon-cyan" />
     </button>
 
     <!-- Options Button -->
     <button
       on:click={onOpenOptions}
-      class="p-1.5 rounded bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border transition"
+      class="p-1.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-terminal-text cursor-pointer"
       title="Settings & Audio Options"
     >
-      <Settings class="w-4 h-4 text-terminal-muted hover:text-terminal-textBright" />
+      <Settings class="w-4 h-4 text-terminal-muted hover:text-white" />
     </button>
 
     <!-- Audio Mute Toggle -->
     <button
       on:click={toggleAudio}
-      class="p-1.5 rounded bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border transition"
-      title={isMuted ? 'Unmute Procedural Audio (M)' : 'Mute Audio (M)'}
+      class="p-1.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-terminal-text cursor-pointer"
+      title={isMuted ? 'Unmute Audio (M)' : 'Mute Audio (M)'}
     >
       {#if isMuted}
         <VolumeX class="w-4 h-4 text-terminal-muted" />
