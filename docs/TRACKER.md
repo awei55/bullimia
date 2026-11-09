@@ -27,6 +27,7 @@
 | **Macro News Alert Feed** | Market Microstructure | ✅ Completed | 9/9 Vitest + E2E | Flashing yellow neon warning banner unlocked at $100,000 for impending $\ge 2.5\times$ ATR volatility shocks in the Fog of War. |
 | **Offline Static Fallback Resilience** | Infrastructure | ✅ Completed | E2E Verified | Zero-dependency resilience: static datasets bundled into `public/data/` so frontend runs even if backend is paused. |
 | **Domain Decoupling & Architecture Spec** | Architecture | ✅ Completed | Locked in `ARCHITECTURE.md` | Formal Hexagonal & Modifier Pipeline specifications ensuring characters, difficulties, market events, and minigames plug in without modifying the core quant kernel. |
+| **AI Context Memory Architecture** | System / Agent | ✅ Completed | Verified | 5-tier context memory architecture (`AGENTS.md`, `GEMINI.md`, `TRACKER.md`, `DATA_CATALOG.md`, `GAME_DESIGN_MEMORY.md`, `.agents/rules/`, `.agents/skills/bullimia-core/`) ensuring automatic memory retention and context loading across all chat sessions. |
 
 ---
 
@@ -58,3 +59,9 @@
 - **2026-11-10**: Verified all 20 automated tests passing (13 backend + 7 frontend) and full Playwright E2E UX test with 0 errors across all 4 phase views.
 - **2026-11-10**: Resolved premature Benefactor trigger bug. Added `isTradingActive` lifecycle gating so zero popups or orders fire while on the Start Screen. Rebuilt Start Screen button to simple bold "START" ($1,000 cold start on NVDA). Implemented distinct Uncle Gordon messages tailored to each of the 3 triggers (120s survival, $5,000 profit run, or $100 crisis). Verified 100% pass across Pytest (13), Vitest (10), and Playwright E2E.
 - **2026-11-10**: Completed Architectural Decoupling & Metagame Extensibility Audit. Authored `docs/ARCHITECTURE.md` establishing the 5 Architectural Commandments, Hexagonal Domain Boundary, and Modifier Pipeline Pattern (DifficultyProfile, CharacterArchetype, MarketEvent, MinigameReward -> TradeContext -> QuantKernel). Core financial engine is formally locked and insulated against regressions.
+- **2026-11-10**: Engineered and deployed 5-Tier AI Context Memory Architecture:
+  1. `AGENTS.md` & `GEMINI.md` at project root for automatic hierarchical context bootstrap in every session.
+  2. `docs/TRACKER.md` as the living project state ledger.
+  3. `docs/DATA_CATALOG.md` capturing all generated datasets, level schemas, and API endpoints.
+  4. `docs/GAME_DESIGN_MEMORY.md` capturing 4-phase game mechanics, Uncle Gordon benefactor triggers, and formulas.
+  5. `.agents/rules/bullimia.md` & `.agents/skills/bullimia-core/SKILL.md` providing progressive operational runbooks for future agents. All 23 unit tests verified (13 Pytest + 10 Vitest).
