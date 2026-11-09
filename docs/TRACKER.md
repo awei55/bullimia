@@ -26,6 +26,7 @@
 | **Uncle Gordon Benefactor Wire** | Metagame / Narrative | ✅ Completed | 9/9 Vitest + E2E | Encrypted pager transmission triggered by 120s survival, $5K profit, or $100 crisis; injects +$9,000 and unlocks multi-asset switching. |
 | **Macro News Alert Feed** | Market Microstructure | ✅ Completed | 9/9 Vitest + E2E | Flashing yellow neon warning banner unlocked at $100,000 for impending $\ge 2.5\times$ ATR volatility shocks in the Fog of War. |
 | **Offline Static Fallback Resilience** | Infrastructure | ✅ Completed | E2E Verified | Zero-dependency resilience: static datasets bundled into `public/data/` so frontend runs even if backend is paused. |
+| **Domain Decoupling & Architecture Spec** | Architecture | ✅ Completed | Locked in `ARCHITECTURE.md` | Formal Hexagonal & Modifier Pipeline specifications ensuring characters, difficulties, market events, and minigames plug in without modifying the core quant kernel. |
 
 ---
 
@@ -56,3 +57,4 @@
 - **2026-11-10**: Implemented Start Screen, Options Modal, Dev Console ($10M/$100M skip), Save State Persistence, and Phase-based View Routing.
 - **2026-11-10**: Verified all 20 automated tests passing (13 backend + 7 frontend) and full Playwright E2E UX test with 0 errors across all 4 phase views.
 - **2026-11-10**: Resolved premature Benefactor trigger bug. Added `isTradingActive` lifecycle gating so zero popups or orders fire while on the Start Screen. Rebuilt Start Screen button to simple bold "START" ($1,000 cold start on NVDA). Implemented distinct Uncle Gordon messages tailored to each of the 3 triggers (120s survival, $5,000 profit run, or $100 crisis). Verified 100% pass across Pytest (13), Vitest (10), and Playwright E2E.
+- **2026-11-10**: Completed Architectural Decoupling & Metagame Extensibility Audit. Authored `docs/ARCHITECTURE.md` establishing the 5 Architectural Commandments, Hexagonal Domain Boundary, and Modifier Pipeline Pattern (DifficultyProfile, CharacterArchetype, MarketEvent, MinigameReward -> TradeContext -> QuantKernel). Core financial engine is formally locked and insulated against regressions.
