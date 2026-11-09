@@ -38,7 +38,7 @@ app.add_middleware(
 )
 
 fabric = MarketDataFabric(data_dir=DATA_DIR)
-kernel = QuantKernel()
+kernel = QuantKernel(starting_cash=1000.0)
 
 
 class OrderRequest(BaseModel):
@@ -185,7 +185,7 @@ def load_career():
 def delete_career_save():
     if os.path.exists(SAVE_FILE):
         os.remove(SAVE_FILE)
-    kernel.reset_career(10000.0)
+    kernel.reset_career(1000.0)
     return {"status": "ok", "account": kernel.account.to_dict()}
 
 

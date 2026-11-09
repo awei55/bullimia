@@ -55,3 +55,4 @@
 - **2026-11-09**: Established remote repository on GitHub: `awei55/bullimia`.
 - **2026-11-10**: Implemented Start Screen, Options Modal, Dev Console ($10M/$100M skip), Save State Persistence, and Phase-based View Routing.
 - **2026-11-10**: Verified all 20 automated tests passing (13 backend + 7 frontend) and full Playwright E2E UX test with 0 errors across all 4 phase views.
+- **2026-11-10**: Resolved premature Benefactor trigger bug. Added `isTradingActive` lifecycle gating so zero popups or orders fire while on the Start Screen. Rebuilt Start Screen button to simple bold "START" ($1,000 cold start on NVDA). Implemented distinct Uncle Gordon messages tailored to each of the 3 triggers (120s survival, $5,000 profit run, or $100 crisis). Verified 100% pass across Pytest (13), Vitest (10), and Playwright E2E.

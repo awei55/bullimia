@@ -25,6 +25,7 @@
     resetCareer,
     wireUncleGordonCapital,
     triggerHeadlineAlert,
+    isTradingActive,
   } from './lib/stores/trading';
   import { soundEngine } from './lib/audio/soundtrack';
   import { SaveManager, getPhaseForEquity } from './lib/services/save_manager';
@@ -87,7 +88,7 @@
 
     // 4. Timer for Uncle Gordon 120s Trigger
     timerInterval = setInterval(() => {
-      if (!inStartMenu) {
+      if (!inStartMenu && $isTradingActive) {
         elapsedTradingSeconds += 1;
         if (elapsedTradingSeconds >= 120 && !$benefactorState.hasTriggeredWire) {
           wireUncleGordonCapital('time');
@@ -116,6 +117,7 @@
     elapsedTradingSeconds = 0;
     activeView = 'CHART';
     inStartMenu = false;
+    isTradingActive.set(true);
 
     if (engine) {
       const data = await loadLevel('NVDA', false);
@@ -150,6 +152,7 @@
     }
 
     inStartMenu = false;
+    isTradingActive.set(true);
 
     if (engine) {
       const levelId = save.currentLevelId || 'NVDA';
@@ -184,6 +187,7 @@
   }
 
   async function handleOpenMenu() {
+    isTradingActive.set(false);
     await triggerSave();
     inStartMenu = true;
   }
@@ -274,15 +278,17 @@
 
 <main class="w-screen h-screen flex flex-col bg-terminal-bg text-terminal-text overflow-hidden relative {crtEnabled ? 'crt-overlay' : ''}">
   <!-- Top HUD Navigation Ribbon -->
-  <HUD
-    {activeView}
-    onChangeView={(v) => (activeView = v)}
-    onOpenMenu={handleOpenMenu}
-    onOpenDevConsole={() => (isDevConsoleOpen = true)}
-    onOpenOptions={() => (isOptionsOpen = true)}
-    onOpenTradeLog={() => (isTradeLogOpen = true)}
-    onJumpEpoch={handleJumpEpoch}
-  />
+  {#if !inStartMenu}
+    <HUD
+      {activeView}
+      onChangeView={(v) => (activeView = v)}
+      onOpenMenu={handleOpenMenu}
+      onOpenDevConsole={() => (isDevConsoleOpen = true)}
+      onOpenOptions={() => (isOptionsOpen = true)}
+      onOpenTradeLog={() => (isTradeLogOpen = true)}
+      onJumpEpoch={handleJumpEpoch}
+    />
+  {/if}
 
   <!-- Main Game Workspace (Always Mounted in DOM) -->
   <div class="flex-1 w-full relative overflow-hidden flex">
@@ -321,8 +327,8 @@
     {/if}
   </div>
 
-  <!-- Bottom Asset Ticker Quick-Bar (Shown when on Chart/Console) -->
-  {#if activeView === 'CHART' || activeView === 'CONSOLE'}
+  <!-- Bottom Asset Ticker Quick-Bar (Shown when on Chart/Console during active gameplay) -->
+  {#if !inStartMenu && (activeView === 'CHART' || activeView === 'CONSOLE')}
     <AssetTickerBar
       onSelectAsset={handleSelectAsset}
       onCustomTicker={handleCustomTicker}
@@ -340,7 +346,9 @@
   {/if}
 
   <!-- Modals -->
-  <BenefactorModal />
+  {#if !inStartMenu && $isTradingActive}
+    <BenefactorModal />
+  {/if}
 
   <OptionsModal
     isOpen={isOptionsOpen}

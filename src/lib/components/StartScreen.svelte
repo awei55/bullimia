@@ -89,18 +89,26 @@
           class="w-full py-3.5 rounded-lg bg-bull hover:bg-bull-dark text-black font-bold tracking-wider text-sm shadow-lg shadow-bull/25 transition flex items-center justify-center space-x-2"
         >
           <Play class="w-4 h-4 fill-black" />
-          <span>RESUME CAREER ({formatCurrency(savedGame.account.equity)})</span>
+          <span>RESUME ({formatCurrency(savedGame.account.equity)})</span>
           <ArrowRight class="w-4 h-4 ml-1" />
         </button>
-      {/if}
 
-      <button
-        on:click={onStartNew}
-        class="w-full py-3 rounded-lg {savedGame ? 'bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border' : 'bg-bull hover:bg-bull-dark text-black font-bold shadow-lg shadow-bull/25'} text-sm transition flex items-center justify-center space-x-2"
-      >
-        <RotateCcw class="w-4 h-4" />
-        <span>START NEW CAREER ($10,000)</span>
-      </button>
+        <button
+          on:click={onStartNew}
+          class="w-full py-2.5 rounded-lg bg-terminal-surface hover:bg-terminal-border text-terminal-text border border-terminal-border text-xs transition flex items-center justify-center space-x-2"
+        >
+          <RotateCcw class="w-3.5 h-3.5" />
+          <span>RESTART ($1,000)</span>
+        </button>
+      {:else}
+        <button
+          on:click={onStartNew}
+          class="w-full py-4 rounded-lg bg-bull hover:bg-bull-dark text-black font-black tracking-widest text-lg shadow-xl shadow-bull/30 transition flex items-center justify-center space-x-2 uppercase"
+        >
+          <Play class="w-5 h-5 fill-black" />
+          <span>START</span>
+        </button>
+      {/if}
 
       <div class="grid grid-cols-2 gap-3 pt-2">
         <button

@@ -43,13 +43,23 @@ def run_e2e_test():
             # --- STEP 1: START SCREEN ---
             print("--- STEP 1: START SCREEN ---")
             page.wait_for_selector("text=BULLIMIA", timeout=10000)
+            
+            # Verify Uncle Gordon message does NOT appear before clicking START
+            assert page.locator("text=UNCLE GORDON").count() == 0, "Uncle Gordon message must NOT appear before trading!"
+            print("Confirmed: Zero popup dialogs on initial open.")
+
+            # Verify button says START
+            start_btn = page.locator("button:has-text('START')").first
+            assert start_btn.is_visible(), "START button must be visible!"
+            print("Confirmed: Clean START button visible on screen.")
+
             ss_start = "D:\\Caynex\\minigames\\screenshot_start_screen.png"
             page.screenshot(path=ss_start)
             print(f"Captured: {ss_start}")
 
             # --- STEP 2: START NEW CAREER (GENESIS TUTORIAL AT $1,000) ---
             print("--- STEP 2: GENESIS TUTORIAL START ($1,000) ---")
-            page.click("text=START NEW CAREER")
+            start_btn.click()
             time.sleep(1.5)
 
             # Canvas and Chart elements
@@ -196,8 +206,8 @@ def run_e2e_test():
             print(f"Captured: {ss_save}")
 
             # Click Resume Career
-            print("Clicking RESUME CAREER...")
-            page.locator("button:has-text('RESUME CAREER')").click()
+            print("Clicking RESUME...")
+            page.locator("button:has-text('RESUME')").first.click()
             time.sleep(1)
 
             # Debug screenshot after clicking Resume Career

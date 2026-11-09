@@ -6,8 +6,9 @@
  */
 
 import * as PIXI from 'pixi.js';
+import { get } from 'svelte/store';
 import type { Candle, LevelData, PositionSide, TradeRecord } from '../types';
-import { executeOrder, updateMarkToMarket, chargeProgress, isCharging, chargedLots, timeDilation } from '../stores/trading';
+import { executeOrder, updateMarkToMarket, chargeProgress, isCharging, chargedLots, timeDilation, isTradingActive } from '../stores/trading';
 import { soundEngine } from '../audio/soundtrack';
 
 export class BullimiaPixiEngine {
@@ -173,8 +174,10 @@ export class BullimiaPixiEngine {
       this.side = 'BULL';
       this.bullGraphic.visible = true;
       this.bearGraphic.visible = false;
-      const candle = this.candles[Math.floor(targetIdx)] || { open: 100, close: 100, high: 100, low: 100, date: '2020-01-01' };
-      executeOrder(level.ticker, 'BULL', 1, this.currentPrice, candle.date, this.avgAtrPct);
+      if (get(isTradingActive)) {
+        const candle = this.candles[Math.floor(targetIdx)] || { open: 100, close: 100, high: 100, low: 100, date: '2020-01-01' };
+        executeOrder(level.ticker, 'BULL', 1, this.currentPrice, candle.date, this.avgAtrPct);
+      }
     }
 
     const candle = this.candles[Math.floor(targetIdx)] || { open: 100, close: 100, high: 100, low: 100 };
@@ -206,12 +209,14 @@ export class BullimiaPixiEngine {
   private setupInputListeners() {
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && !e.repeat) {
+        if (!get(isTradingActive)) return;
         soundEngine.resume();
         this.spaceHeld = true;
         this.chargeStartTime = performance.now();
         isCharging.set(true);
         chargeProgress.set(0.0);
       } else if (e.code === 'Escape' && this.spaceHeld) {
+        if (!get(isTradingActive)) return;
         // Phase 2 unlock: SPACE + ESC Neutral Cash Flatten
         this.flattenToCash();
         this.spaceHeld = false;
@@ -222,6 +227,7 @@ export class BullimiaPixiEngine {
 
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space' && this.spaceHeld) {
+        if (!get(isTradingActive)) return;
         const duration = (performance.now() - this.chargeStartTime) / 1000;
         // Sizing progression: 0s -> 1 lot, 2.5s -> 100 lots
         const ratio = Math.min(1.0, duration / 2.5);
@@ -270,6 +276,10 @@ export class BullimiaPixiEngine {
     if (!this.level || this.candles.length === 0) return;
 
     this.animTime += dt;
+
+    if (!get(isTradingActive)) {
+      return;
+    }
 
     // 1. Time Dilation & Movement
     let speedMult = 1.0;

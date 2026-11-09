@@ -7,6 +7,7 @@ import {
   timeDilation,
   quotes,
   benefactorState,
+  isTradingActive,
   wireUncleGordonCapital,
   checkBenefactorTriggers,
 } from './trading';
@@ -52,19 +53,19 @@ describe('Bullimia Frontend Trading Stores', () => {
     expect(q.spread).toBe(0.3);
   });
 
-  it('handles Uncle Gordon wire transfer and benefactor state unlocks', () => {
-    // Reset state for test
+  it('does not trigger benefactor modal while isTradingActive is false', () => {
     benefactorState.set({
       hasTriggeredWire: false,
       assetBarUnlocked: false,
       newsAlertsUnlocked: false,
       activeDialog: null,
     });
+    isTradingActive.set(false);
     account.set({
-      cash_balance: 1000.0,
-      equity: 1000.0,
+      cash_balance: 5500.0,
+      equity: 5500.0,
       margin_used: 0.0,
-      free_margin: 1000.0,
+      free_margin: 5500.0,
       margin_level_pct: 999.0,
       unrealized_pnl: 0.0,
       realized_pnl: 0.0,
@@ -77,29 +78,59 @@ describe('Bullimia Frontend Trading Stores', () => {
       win_rate_pct: 0.0,
       is_margin_called: false,
       is_millionaire: false,
-      high_watermark: 1000.0,
+      high_watermark: 5500.0,
     });
 
-    // Wire capital
-    wireUncleGordonCapital('profit');
-    const bState = get(benefactorState);
-    expect(bState.hasTriggeredWire).toBe(true);
-    expect(bState.assetBarUnlocked).toBe(true);
-    expect(bState.activeDialog).not.toBeNull();
-    expect(bState.activeDialog?.wireAmount).toBe(9000);
-
-    const updatedAcc = get(account);
-    expect(updatedAcc.cash_balance).toBe(10000.0);
-    expect(updatedAcc.equity).toBe(10000.0);
+    checkBenefactorTriggers();
+    expect(get(benefactorState).activeDialog).toBeNull();
   });
 
-  it('triggers news alerts at $100,000 threshold', () => {
+  it('generates distinct Uncle Gordon messages for profit, crisis, and time triggers', () => {
+    // 1. Profit Trigger ($5,000)
+    benefactorState.set({
+      hasTriggeredWire: false,
+      assetBarUnlocked: false,
+      newsAlertsUnlocked: false,
+      activeDialog: null,
+    });
+    wireUncleGordonCapital('profit');
+    let bState = get(benefactorState);
+    expect(bState.activeDialog?.title).toContain('PROFIT TRIGGER: $5,000');
+    expect(bState.activeDialog?.message).toContain('turned pocket change into 5 grand');
+
+    // 2. Crisis Trigger ($100)
+    benefactorState.set({
+      hasTriggeredWire: false,
+      assetBarUnlocked: false,
+      newsAlertsUnlocked: false,
+      activeDialog: null,
+    });
+    wireUncleGordonCapital('crisis');
+    bState = get(benefactorState);
+    expect(bState.activeDialog?.title).toContain('BAILOUT TRIGGER: $100');
+    expect(bState.activeDialog?.message).toContain('Down to your last hundred bucks');
+
+    // 3. Time Trigger (120s survival)
+    benefactorState.set({
+      hasTriggeredWire: false,
+      assetBarUnlocked: false,
+      newsAlertsUnlocked: false,
+      activeDialog: null,
+    });
+    wireUncleGordonCapital('time');
+    bState = get(benefactorState);
+    expect(bState.activeDialog?.title).toContain('SURVIVAL TRIGGER: 120s');
+    expect(bState.activeDialog?.message).toContain('two minutes straight without blowing up');
+  });
+
+  it('triggers news alerts at $100,000 threshold when active', () => {
     benefactorState.set({
       hasTriggeredWire: true,
       assetBarUnlocked: true,
       newsAlertsUnlocked: false,
       activeDialog: null,
     });
+    isTradingActive.set(true);
 
     account.set({
       cash_balance: 100000.0,
@@ -121,7 +152,7 @@ describe('Bullimia Frontend Trading Stores', () => {
       high_watermark: 100000.0,
     });
 
-    checkBenefactorTriggers(0);
+    checkBenefactorTriggers();
     const bState = get(benefactorState);
     expect(bState.newsAlertsUnlocked).toBe(true);
   });

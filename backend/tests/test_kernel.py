@@ -3,10 +3,10 @@ from bullimia_quant.kernel import QuantKernel, PositionSide
 
 
 def test_initial_account_state():
-    kernel = QuantKernel(starting_cash=10000.0)
+    kernel = QuantKernel()
     acc = kernel.account
-    assert acc.cash_balance == 10000.0
-    assert acc.equity == 10000.0
+    assert acc.cash_balance == 1000.0
+    assert acc.equity == 1000.0
     assert acc.side == PositionSide.FLAT
     assert acc.open_lots == 0
     assert acc.trade_count == 0

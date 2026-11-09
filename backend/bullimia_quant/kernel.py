@@ -82,7 +82,7 @@ class QuantKernel:
     """
     def __init__(
         self,
-        starting_cash: float = 10000.0,
+        starting_cash: float = 1000.0,
         commission_per_lot: float = 1.0,
         margin_rate: float = 0.02,           # 2% margin = 50:1 leverage
         contract_multiplier: float = 10.0,    # $10 per point per lot (or calibrated per asset)
@@ -118,8 +118,8 @@ class QuantKernel:
         """Restores account state from a save file or persistent store."""
         side_val = account_data.get("side", "FLAT")
         side = PositionSide[side_val] if side_val in PositionSide.__members__ else PositionSide.FLAT
-        self.account.cash_balance = float(account_data.get("cash_balance", 10000.0))
-        self.account.equity = float(account_data.get("equity", 10000.0))
+        self.account.cash_balance = float(account_data.get("cash_balance", 1000.0))
+        self.account.equity = float(account_data.get("equity", 1000.0))
         self.account.side = side
         self.account.open_lots = int(account_data.get("open_lots", 0))
         self.account.entry_price = float(account_data.get("entry_price", 0.0))
@@ -323,7 +323,7 @@ class QuantKernel:
             "quotes": quotes
         }
 
-    def reset_career(self, starting_cash: float = 10000.0):
+    def reset_career(self, starting_cash: float = 1000.0):
         self.account = AccountState(
             cash_balance=starting_cash,
             equity=starting_cash,

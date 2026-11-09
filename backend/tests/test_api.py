@@ -154,4 +154,4 @@ def test_save_and_load_roundtrip():
     # Delete save
     res_del = client.post("/api/save/delete")
     assert res_del.status_code == 200
-    assert res_del.json()["account"]["equity"] == 10000.0
+    assert res_del.json()["account"]["equity"] == 1000.0

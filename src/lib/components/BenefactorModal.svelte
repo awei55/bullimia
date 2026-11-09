@@ -15,7 +15,7 @@
         <div class="flex items-center space-x-2">
           <div class="w-3 h-3 rounded-full bg-neon-amber animate-ping"></div>
           <span class="text-neon-amber font-bold tracking-widest uppercase">
-            ENCRYPTED TRANSMISSION // UNCLE GORDON
+            {$benefactorState.activeDialog.title || 'ENCRYPTED TRANSMISSION // UNCLE GORDON'}
           </span>
         </div>
         <span class="text-[10px] text-terminal-muted">CH-77 • QUANTUM LINK</span>

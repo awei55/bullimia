@@ -52,6 +52,7 @@ export const benefactorState = writable<BenefactorState>({
 });
 
 export const activeNewsAlert = writable<{ headline: string; timestamp: number } | null>(null);
+export const isTradingActive = writable<boolean>(false);
 
 let ws: WebSocket | null = null;
 let reconnectTimer: any = null;
@@ -372,6 +373,7 @@ export async function updateMarkToMarket(price: number, atrPct: number = 0.02) {
 }
 
 export function checkBenefactorTriggers() {
+  if (!get(isTradingActive)) return;
   const bState = get(benefactorState);
   const acc = get(account);
 
@@ -404,13 +406,17 @@ export function wireUncleGordonCapital(reason: string = 'time') {
   benefactorState.update((s) => {
     if (s.hasTriggeredWire) return s;
 
+    let title = 'ENCRYPTED TRANSMISSION // UNCLE GORDON';
     let message = '';
     if (reason === 'profit') {
-      message = "Kid, I've been watching your candlestick runs. You've got instinct—turned pocket change into 5 grand. But trading one lot at a time won't get you off retail streets. I just wired $9,000 into your account. Try trading AAPL or EUR/USD. I just unlocked the multi-asset terminal for you.";
+      title = 'ENCRYPTED TRANSMISSION // UNCLE GORDON (PROFIT TRIGGER: $5,000)';
+      message = "Kid, I've been watching your candlestick runs. You've got instinct—turned pocket change into 5 grand! But trading one lot at a time on a single stock won't get you off retail streets. I just wired $9,000 into your account. Try trading AAPL or EUR/USD. I just unlocked the multi-asset terminal for you.";
     } else if (reason === 'crisis') {
-      message = "Ouch. Almost wiped out your first grand. Welcome to Wall Street. Don't sweat it—every legend bleeds on day one. I just wired $9,000 into your broker account so you can stay in the game. Take a breather, switch to AAPL or EUR/USD, and respect your risk limits.";
+      title = 'ENCRYPTED TRANSMISSION // UNCLE GORDON (BAILOUT TRIGGER: $100)';
+      message = "Ouch. Almost wiped out your first grand. Down to your last hundred bucks! Welcome to Wall Street, kid. Don't sweat it—every legend bleeds on day one. I just wired $9,000 into your broker account so you can stay in the game. Take a breather, switch to AAPL or EUR/USD, and respect your risk limits.";
     } else {
-      message = "Word on the street is you've started surfing the candlestick tape. Not bad for a rookie. I just wired $9,000 into your broker account to give you real trading capital. Recommending you diversify into AAPL or EUR/USD. Multi-asset selector is now unlocked.";
+      title = 'ENCRYPTED TRANSMISSION // UNCLE GORDON (SURVIVAL TRIGGER: 120s)';
+      message = "Word on the street is you've started surfing the candlestick tape. You've held your own out here for two minutes straight without blowing up. Not bad for a rookie. I just wired $9,000 into your broker account to give you real trading capital. Recommending you diversify into AAPL or EUR/USD. Multi-asset selector is now unlocked.";
     }
 
     // Add $9,000 cash locally and notify backend
@@ -431,7 +437,7 @@ export function wireUncleGordonCapital(reason: string = 'time') {
       assetBarUnlocked: true,
       newsAlertsUnlocked: s.newsAlertsUnlocked,
       activeDialog: {
-        title: 'INCOMING WIRE // UNCLE GORDON ($9,000 USD)',
+        title,
         message,
         wireAmount: 9000,
         unlockNote: 'UNLOCKED: Multi-Asset Switching Panel (Keys 1-8)',
@@ -469,4 +475,5 @@ export async function resetCareer(startingCash: number = 1000.0) {
     newsAlertsUnlocked: false,
     activeDialog: null,
   });
+  isTradingActive.set(false);
 }
