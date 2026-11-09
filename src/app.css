@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #08090c;
+    color: #e1e7f5;
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Retro CRT / Terminal Scanlines */
+.crt-overlay::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 20;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Subtle glowing text */
+.text-glow-bull {
+  text-shadow: 0 0 10px rgba(0, 245, 155, 0.6), 0 0 20px rgba(0, 245, 155, 0.3);
+}
+
+.text-glow-bear {
+  text-shadow: 0 0 10px rgba(255, 46, 99, 0.6), 0 0 20px rgba(255, 46, 99, 0.3);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.6), 0 0 20px rgba(0, 229, 255, 0.3);
+}
