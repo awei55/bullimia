@@ -1,5 +1,34 @@
 export type PositionSide = 'FLAT' | 'BULL' | 'BEAR';
 
+export type GamePhase =
+  | 'PHASE_1_CHART'       // Early: $10K - $1M (Rhythm Autoscroller Chart)
+  | 'PHASE_2_CONSOLE'     // Midgame: $1M - $10M (Complete Trade Console)
+  | 'PHASE_3_BOTS'        // Late: $10M - $100M (Algorithmic Bot Studio & Multi-Desk)
+  | 'PHASE_4_PORTFOLIO';  // Endgame: $100M+ (Portfolio Manager & Sovereign Credit)
+
+export interface SaveState {
+  version: string;
+  timestamp: string;
+  account: AccountState;
+  phase: GamePhase;
+  currentLevelId: string;
+  playerProgress: number;
+  openPosition: {
+    side: PositionSide;
+    lots: number;
+    entryPrice: number;
+    entryTimestamp: string;
+    entryCandleIdx: number;
+  } | null;
+  tradeHistory: TradeRecord[];
+  settings: {
+    crtEnabled: boolean;
+    masterVolume: number;
+    musicVolume: number;
+    sfxVolume: number;
+  };
+}
+
 export interface Candle {
   index: number;
   date: string;

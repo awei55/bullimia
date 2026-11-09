@@ -92,6 +92,7 @@ class QuantKernel:
         self.margin_rate = margin_rate
         self.contract_multiplier = contract_multiplier
         self.maintenance_margin_rate = maintenance_margin_rate
+        self.god_mode: bool = False
 
         self.account = AccountState(
             cash_balance=starting_cash,
@@ -101,6 +102,60 @@ class QuantKernel:
         )
         self.trade_history: List[TradeRecord] = []
         self._next_trade_id: int = 1
+
+    def set_equity(self, new_equity: float):
+        """Dev tool: set equity directly for phase testing (e.g. 1M, 10M, 100M)."""
+        self.account.cash_balance = new_equity
+        self.account.equity = new_equity
+        self.account.free_margin = new_equity
+        if new_equity > self.account.high_watermark:
+            self.account.high_watermark = new_equity
+        if new_equity >= 1000000.0:
+            self.account.is_millionaire = True
+        self.account.is_margin_called = False
+
+    def restore_state(self, account_data: Dict[str, Any], trades: Optional[List[Dict[str, Any]]] = None):
+        """Restores account state from a save file or persistent store."""
+        side_val = account_data.get("side", "FLAT")
+        side = PositionSide[side_val] if side_val in PositionSide.__members__ else PositionSide.FLAT
+        self.account.cash_balance = float(account_data.get("cash_balance", 10000.0))
+        self.account.equity = float(account_data.get("equity", 10000.0))
+        self.account.side = side
+        self.account.open_lots = int(account_data.get("open_lots", 0))
+        self.account.entry_price = float(account_data.get("entry_price", 0.0))
+        self.account.entry_timestamp = str(account_data.get("entry_timestamp", ""))
+        self.account.unrealized_pnl = float(account_data.get("unrealized_pnl", 0.0))
+        self.account.margin_used = float(account_data.get("margin_used", 0.0))
+        self.account.free_margin = float(account_data.get("free_margin", self.account.cash_balance))
+        self.account.margin_level_pct = float(account_data.get("margin_level_pct", 999.0))
+        self.account.total_commission_paid = float(account_data.get("total_commission_paid", 0.0))
+        self.account.trade_count = int(account_data.get("trade_count", 0))
+        self.account.winning_trades = int(account_data.get("winning_trades", 0))
+        self.account.losing_trades = int(account_data.get("losing_trades", 0))
+        self.account.high_watermark = float(account_data.get("high_watermark", self.account.equity))
+        self.account.is_millionaire = self.account.equity >= 1000000.0
+        self.account.is_margin_called = False
+
+        if trades:
+            self.trade_history.clear()
+            for t in trades:
+                t_side = PositionSide[t["side"]] if t["side"] in PositionSide.__members__ else PositionSide.FLAT
+                self.trade_history.append(
+                    TradeRecord(
+                        id=int(t.get("id", len(self.trade_history) + 1)),
+                        ticker=t.get("ticker", "NVDA"),
+                        side=t_side,
+                        entry_price=float(t.get("entry_price", 0.0)),
+                        exit_price=float(t.get("exit_price", 0.0)),
+                        lots=int(t.get("lots", 1)),
+                        entry_timestamp=str(t.get("entry_timestamp", "")),
+                        exit_timestamp=str(t.get("exit_timestamp", "")),
+                        pnl=float(t.get("pnl", 0.0)),
+                        commission_paid=float(t.get("commission_paid", 0.0)),
+                        is_win=bool(t.get("is_win", False))
+                    )
+                )
+            self._next_trade_id = max([t.id for t in self.trade_history] + [0]) + 1
 
     def calculate_spread(self, current_price: float, atr_pct: float = 0.02) -> float:
         """
@@ -154,11 +209,12 @@ class QuantKernel:
         if self.account.equity >= 1000000.0:
             self.account.is_millionaire = True
 
-        # Margin Call Check
-        if self.account.margin_used > 0 and self.account.equity <= (self.account.margin_used * self.maintenance_margin_rate):
-            self.account.is_margin_called = True
-        elif self.account.equity <= 0:
-            self.account.is_margin_called = True
+        # Margin Call Check (suppressed if god_mode is active)
+        if not self.god_mode:
+            if self.account.margin_used > 0 and self.account.equity <= (self.account.margin_used * self.maintenance_margin_rate):
+                self.account.is_margin_called = True
+            elif self.account.equity <= 0:
+                self.account.is_margin_called = True
 
         return self.account
 

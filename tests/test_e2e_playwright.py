@@ -36,39 +36,86 @@ def run_e2e_test():
             print("4. Navigating to http://localhost:5173...")
             page.goto("http://localhost:5173", wait_until="networkidle", timeout=15000)
 
-            # Wait for canvas to mount
-            page.wait_for_selector("canvas", timeout=10000)
-            print("Canvas mounted successfully!")
+            # Wait for Start Screen
+            page.wait_for_selector("text=BULLIMIA", timeout=10000)
+            print("Start Screen mounted successfully!")
+            
+            # Screenshot 1: Start Screen
+            ss_start = "D:\\Caynex\\minigames\\screenshot_start_screen.png"
+            page.screenshot(path=ss_start)
+            print(f"Captured Start Screen: {ss_start}")
 
-            # Wait for HUD asset ticker
-            page.wait_for_selector("h1", timeout=5000)
-            asset_title = page.text_content("h1")
-            print(f"HUD Asset Title: {asset_title}")
-            assert "NVDA" in asset_title or "LOADING" in asset_title
-
-            # Wait 2 seconds for gameplay autoscroll
-            time.sleep(2)
-
-            # Test Spacebar press (flip from Bull to Bear)
-            print("5. Testing Spacebar flip...")
-            page.keyboard.down("Space")
-            time.sleep(0.4) # charge lots
-            page.keyboard.up("Space")
-
+            # Click Start New Career
+            print("5. Clicking Start New Career...")
+            page.click("text=START NEW CAREER")
             time.sleep(1)
 
-            # Capture Flagship Screenshot
-            screenshot_path = "D:\\Caynex\\minigames\\screenshot_svelte_pixi_flagship.png"
-            page.screenshot(path=screenshot_path)
-            print(f"6. Screenshot captured at {screenshot_path}")
+            # Wait for canvas & HUD
+            page.wait_for_selector("canvas", timeout=10000)
+            page.wait_for_selector("h1", timeout=5000)
+            print("Chart Autoscroller mounted successfully!")
 
-            # Verify no critical runtime errors
+            # Open Dev Console
+            print("6. Opening Dev Console...")
+            page.click("text=DEV")
+            page.wait_for_selector("text=DEV CONSOLE // PHASE & BALANCE WARPER", timeout=5000)
+
+            # Warp to 10M (Phase 3 Bot Studio)
+            print("7. Warping to $10,000,000 (Phase 3)...")
+            page.click("text=WARP TO $10,000,000")
+            time.sleep(0.5)
+            page.click("text=CLOSE")
+
+            time.sleep(1)
+            # Verify Bot Studio View
+            page.wait_for_selector("text=AUTONOMOUS QUANTITATIVE BOTS", timeout=5000)
+            ss_phase3 = "D:\\Caynex\\minigames\\screenshot_phase3_bot_studio.png"
+            page.screenshot(path=ss_phase3)
+            print(f"Captured Phase 3 Bot Studio: {ss_phase3}")
+
+            # Open Dev Console again and warp to 100M (Phase 4 Portfolio Manager)
+            print("8. Warping to $100,000,000 (Phase 4)...")
+            page.click("text=DEV")
+            page.wait_for_selector("text=WARP TO $100,000,000", timeout=5000)
+            page.click("text=WARP TO $100,000,000")
+            time.sleep(0.5)
+            page.click("text=CLOSE")
+
+            time.sleep(1)
+            # Verify Portfolio Manager View
+            page.wait_for_selector("text=MACRO CAPITAL & SOVEREIGN DESK", timeout=5000)
+            ss_phase4 = "D:\\Caynex\\minigames\\screenshot_phase4_portfolio.png"
+            page.screenshot(path=ss_phase4)
+            print(f"Captured Phase 4 Portfolio Manager: {ss_phase4}")
+
+            # Return to Home / Menu
+            print("9. Returning to Main Menu...")
+            page.click("button[title='Save & Return to Main Menu']")
+            time.sleep(1)
+
+            # Verify Start Screen displays saved career
+            page.wait_for_selector("text=ACTIVE CAREER DETECTED", timeout=5000)
+            ss_resumed = "D:\\Caynex\\minigames\\screenshot_start_screen_with_save.png"
+            page.screenshot(path=ss_resumed)
+            print(f"Captured Start Screen with Save State: {ss_resumed}")
+
+            # Click Resume Career
+            print("10. Clicking Resume Career...")
+            page.click("text=RESUME CAREER")
+            time.sleep(1)
+
+            # Verify it loads back into the Phase 4 Portfolio Manager!
+            page.wait_for_selector("text=MACRO CAPITAL & SOVEREIGN DESK", timeout=5000)
+            print("Successfully resumed into Phase 4 Portfolio Manager!")
+
+            # Verify Console Errors
             print(f"Console errors: {len(console_errors)}")
             for err in console_errors:
                 print(f"  Console Error: {err}")
+            assert len(console_errors) == 0
 
             browser.close()
-            print("E2E Verification Complete!")
+            print("Full UX & Save State E2E Verification Complete!")
 
     finally:
         print("Terminating test processes...")

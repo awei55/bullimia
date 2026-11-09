@@ -20,6 +20,10 @@ env/
 venv/
 *.egg-info/
 
+# Saves
+saves/
+*.sav
+
 # System & IDE
 .DS_Store
 Thumbs.db

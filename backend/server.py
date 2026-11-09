@@ -6,6 +6,7 @@ deterministic quant accounting, and historical level streaming.
 
 import os
 import sys
+import json
 from typing import Optional, Dict, Any
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,9 @@ from bullimia_quant.kernel import QuantKernel, PositionSide
 from bullimia_quant.streaming import MarketDataFabric
 
 DATA_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "data"))
+SAVES_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "saves"))
+os.makedirs(SAVES_DIR, exist_ok=True)
+SAVE_FILE = os.path.join(SAVES_DIR, "career_save.json")
 
 app = FastAPI(title="Bullimia Quant Backend", version="2.0.0")
 
@@ -53,6 +57,18 @@ class MarkToMarketRequest(BaseModel):
 
 class ResetRequest(BaseModel):
     starting_cash: float = 10000.0
+
+
+class SavePayload(BaseModel):
+    data: Dict[str, Any]
+
+
+class WarpPayload(BaseModel):
+    equity: float
+
+
+class GodModePayload(BaseModel):
+    enabled: bool
 
 
 @app.get("/api/health")
@@ -130,7 +146,59 @@ def get_account():
 @app.post("/api/reset")
 def reset_career(req: ResetRequest):
     kernel.reset_career(req.starting_cash)
+    if os.path.exists(SAVE_FILE):
+        try:
+            os.remove(SAVE_FILE)
+        except Exception:
+            pass
     return {"account": kernel.account.to_dict()}
+
+
+@app.post("/api/save")
+def save_career(payload: SavePayload):
+    try:
+        with open(SAVE_FILE, "w", encoding="utf-8") as f:
+            json.dump(payload.data, f, indent=2)
+        # Synchronize kernel state if account is provided
+        if "account" in payload.data:
+            kernel.restore_state(payload.data["account"], payload.data.get("tradeHistory"))
+        return {"status": "ok", "message": "Career save recorded"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/save")
+def load_career():
+    if not os.path.exists(SAVE_FILE):
+        return {"has_save": False, "data": None}
+    try:
+        with open(SAVE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if "account" in data:
+            kernel.restore_state(data["account"], data.get("tradeHistory"))
+        return {"has_save": True, "data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/save/delete")
+def delete_career_save():
+    if os.path.exists(SAVE_FILE):
+        os.remove(SAVE_FILE)
+    kernel.reset_career(10000.0)
+    return {"status": "ok", "account": kernel.account.to_dict()}
+
+
+@app.post("/api/dev/warp")
+def dev_warp_equity(payload: WarpPayload):
+    kernel.set_equity(payload.equity)
+    return {"status": "ok", "account": kernel.account.to_dict()}
+
+
+@app.post("/api/dev/godmode")
+def dev_toggle_godmode(payload: GodModePayload):
+    kernel.god_mode = payload.enabled
+    return {"status": "ok", "god_mode": kernel.god_mode}
 
 
 @app.websocket("/ws/stream")

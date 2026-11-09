@@ -148,27 +148,48 @@ export class BullimiaPixiEngine {
     this.lotText.visible = false;
   }
 
-  public setLevel(level: LevelData) {
+  public setLevel(
+    level: LevelData,
+    startCandleIdx?: number,
+    restoredPosition?: { side: PositionSide; lots: number; entryPrice: number } | null
+  ) {
     this.level = level;
     this.candles = level.candles;
     this.avgAtrPct = level.avg_atr_pct || 0.028;
     this.logScale = level.log_scale || 1700.0;
-    this.playerProgress = level.start_index;
-    this.initialPrice = level.initial_price;
-    this.currentPrice = level.initial_price;
-    this.side = 'BULL'; // Start as Bull on top
-    this.bullGraphic.visible = true;
-    this.bearGraphic.visible = false;
 
-    // Place camera and player
-    const candle = this.candles[level.start_index] || { open: 100, close: 100, high: 100, low: 100 };
-    this.playerX = level.start_index * this.candleStep;
-    this.playerY = this.priceToScreenY(candle.high) - 22;
+    const targetIdx = (startCandleIdx !== undefined && startCandleIdx >= 0 && startCandleIdx < this.candles.length)
+      ? startCandleIdx
+      : level.start_index;
+    this.playerProgress = targetIdx;
+    this.initialPrice = level.initial_price;
+    this.currentPrice = this.candles[Math.floor(targetIdx)]?.close || level.initial_price;
+
+    if (restoredPosition && restoredPosition.side !== 'FLAT') {
+      this.side = restoredPosition.side;
+      this.bullGraphic.visible = this.side === 'BULL';
+      this.bearGraphic.visible = this.side === 'BEAR';
+    } else {
+      this.side = 'BULL';
+      this.bullGraphic.visible = true;
+      this.bearGraphic.visible = false;
+      const candle = this.candles[Math.floor(targetIdx)] || { open: 100, close: 100, high: 100, low: 100, date: '2020-01-01' };
+      executeOrder(level.ticker, 'BULL', 1, this.currentPrice, candle.date, this.avgAtrPct);
+    }
+
+    const candle = this.candles[Math.floor(targetIdx)] || { open: 100, close: 100, high: 100, low: 100 };
+    this.playerX = targetIdx * this.candleStep;
+    this.playerY = this.side === 'BULL' ? this.priceToScreenY(candle.high) - 22 : this.priceToScreenY(candle.low) + 22;
     this.cameraX = this.playerX - 300;
     this.cameraY = this.playerY;
+  }
 
-    // Trigger initial 1-lot position
-    executeOrder(level.ticker, 'BULL', 1, this.currentPrice, candle.date, this.avgAtrPct);
+  public getPlayerProgress(): number {
+    return this.playerProgress;
+  }
+
+  public getCurrentSide(): PositionSide {
+    return this.side;
   }
 
   public setTrades(trades: TradeRecord[]) {
