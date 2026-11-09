@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bullimia: The Wall Street Candlestick Rollercoaster</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐂</text></svg>">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Main Interactive Game Canvas -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Top Status Bar / Financial HUD Ribbon -->
+        <header id="top-hud">
+            <div class="hud-section">
+                <div class="ticker-info">
+                    <div id="hud-ticker"><span class="ticker-symbol">GME</span> <span class="ticker-desc">GameStop Squeeze</span></div>
+                    <div class="date-display" id="hud-date">2021-01-27</div>
+                </div>
+                <div id="hud-position" class="position-badge long">
+                    <span class="badge-icon">🐂</span> <strong>LONG</strong> 1L @ $18.50
+                </div>
+            </div>
+
+            <div class="hud-section financial-metrics">
+                <div class="metric-group">
+                    <span class="metric-label">Account Equity</span>
+                    <span id="hud-equity" class="equity-val positive">$10,000.00</span>
+                </div>
+                <div class="metric-group">
+                    <span class="metric-label">Cash</span>
+                    <span id="hud-cash" class="cash-val">$10,000.00</span>
+                </div>
+                <div class="metric-group">
+                    <span class="metric-label">Unrealized P&amp;L</span>
+                    <span id="hud-pnl" class="pnl-val neutral">$0.00</span>
+                </div>
+            </div>
+
+            <div class="hud-section">
+                <div class="quotes-pill">
+                    <span>BID: <strong id="hud-bid" class="quote-bid">$18.45</strong></span>
+                    <span>|</span>
+                    <span>ASK: <strong id="hud-ask" class="quote-ask">$18.55</strong></span>
+                </div>
+                <button id="btn-select-level" class="hud-btn gold">📊 ASSETS</button>
+                <button id="btn-random-era" class="hud-btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">🎲 RANDOM ERA</button>
+                <button id="btn-bgm" class="hud-btn active">🎵 BGM: ON</button>
+                <button id="btn-mute" class="hud-btn">🔊 SFX ON</button>
+                <button id="btn-help" class="hud-btn">❓ HELP</button>
+            </div>
+        </header>
+
+        <!-- Bottom Minimap & Timeline Ribbon -->
+        <footer id="bottom-hud">
+            <div class="minimap-header">
+                <span>📈 HISTORICAL TRADE RECORD &amp; MT5 TRAIL (GREEN=WIN / RED=LOSS)</span>
+                <span id="hud-progress">Candle 1</span>
+            </div>
+            <canvas id="minimap-canvas" height="38"></canvas>
+            <div class="controls-hint">
+                <span><span class="key-badge">TAP SPACE</span> Flip Bull (Long) / Bear (Short)</span>
+                <span>•</span>
+                <span><span class="key-badge">HOLD SPACE</span> Charge Lots (1 to 100) &amp; Vibrate</span>
+                <span>•</span>
+                <span><span class="key-badge">RELEASE</span> Execute Order at Bid/Ask</span>
+            </div>
+        </footer>
+
+        <!-- Modal: Level Select & Custom Ticker Fetcher -->
+        <div id="modal-level-select" class="modal-overlay">
+            <div class="modal-card">
+                <h2 class="modal-title">📈 Select Asset &amp; Time Travel</h2>
+                <p class="modal-subtitle">Pick an asset to be dropped into a random historical era! The future is hidden in darkness until you trade through it.</p>
+
+                <!-- Custom Ticker Search Form -->
+                <div class="custom-ticker-box">
+                    <strong>🔍 Play Any Custom Ticker (Real-Time Historical Data)</strong>
+                    <div class="custom-form">
+                        <input type="text" id="input-custom-ticker" class="input-field" placeholder="Ticker Symbol (e.g. AAPL, NVDA, COIN)" maxlength="12" style="flex: 2;">
+                        <select id="select-custom-period" class="select-field" style="flex: 1;">
+                            <option value="1mo">1 Month</option>
+                            <option value="3mo">3 Months</option>
+                            <option value="6mo" selected>6 Months</option>
+                            <option value="1y">1 Year</option>
+                            <option value="2y">2 Years</option>
+                        </select>
+                        <select id="select-custom-interval" class="select-field" style="flex: 1;">
+                            <option value="1d" selected>Daily</option>
+                            <option value="1h">1 Hour</option>
+                            <option value="5m">5 Min</option>
+                        </select>
+                        <button id="btn-fetch-custom" class="btn-primary" style="flex: 1.2;">DOWNLOAD &amp; PLAY</button>
+                    </div>
+                    <div id="custom-status" class="custom-status"></div>
+                </div>
+
+                <!-- Pre-packaged Legendary Levels -->
+                <h3 style="font-size: 1rem; color: var(--neon-gold); margin-bottom: 10px;">🌟 Iconic Market Rollercoasters</h3>
+                <div id="level-grid" class="level-grid">
+                    <!-- Populated dynamically by menus.js -->
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="document.getElementById('modal-level-select').classList.remove('active')">CLOSE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Help / Instructions -->
+        <div id="modal-help" class="modal-overlay">
+            <div class="modal-card">
+                <h2 class="modal-title">🐂 Welcome to Bullimia! 🐻</h2>
+                <p class="modal-subtitle">The 2D autoscroller trading simulator based on real market history.</p>
+
+                <div style="font-size: 0.88rem; line-height: 1.6; color: #CCD6E0; display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                        <strong style="color: var(--neon-green);">🐂 The Bull (Long Position):</strong><br>
+                        When you are a Bull, you run on top of the candlesticks! You enter by buying at the <strong>Ask</strong> price. As prices rise, your score and equity skyrocket!
+                    </div>
+                    <div>
+                        <strong style="color: var(--neon-red);">🐻 The Bear (Short Position):</strong><br>
+                        When you press space, you flip into a Bear and run along the <strong>underside</strong> of the candlesticks upside down! You sell at the <strong>Bid</strong> price. When prices plummet, you print massive profits!
+                    </div>
+                    <div>
+                        <strong style="color: var(--neon-gold);">⚡ Hold Space to Charge Lots (1 to 100):</strong><br>
+                        Holding <span class="key-badge">SPACE</span> makes your character violently vibrate as order energy builds. The lot size counts up from 1 to 100 over a couple seconds. Releasing space executes the trade with that order size!
+                    </div>
+                    <div>
+                        <strong style="color: var(--neon-cyan);">💸 Commissions &amp; Spreads:</strong><br>
+                        Just like real markets, buying and selling crosses the Bid/Ask spread, and a $1 per lot commission is deducted on each trade. Overtrading will eat your capital!
+                    </div>
+                    <div>
+                        <strong>🎯 Win &amp; Loss Conditions:</strong><br>
+                        • <strong>Margin Call:</strong> If your total equity drops to $0, your account is liquidated! Game Over.<br>
+                        • <strong>Millionaire:</strong> Grow your $10,000 into $1,000,000 USD to conquer Wall Street!
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-close-help" class="btn-primary">LET'S TRADE!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Margin Call (Game Over) -->
+        <div id="modal-margin-call" class="modal-overlay">
+            <div class="modal-card margin-call">
+                <h2 class="modal-title" style="color: var(--neon-red);">🚨 MARGIN CALL! ACCOUNT LIQUIDATED!</h2>
+                <p class="modal-subtitle">Your total equity hit $0. Risk management has forcibly closed your positions.</p>
+                
+                <div id="margin-stats">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-margin-retry" class="btn-primary" style="background: linear-gradient(135deg, #FF1744, #D50000); color: #FFF;">TRY AGAIN</button>
+                    <button id="btn-margin-levels" class="btn-secondary">CHOOSE ANOTHER LEVEL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Millionaire (Victory!) -->
+        <div id="modal-millionaire" class="modal-overlay">
+            <div class="modal-card millionaire">
+                <h2 class="modal-title" style="color: var(--neon-gold);">🏆 WALL STREET MILLIONAIRE! 🍾</h2>
+                <p class="modal-subtitle">Incredible! You turned $10,000 into over $1,000,000 on real historical candles!</p>
+
+                <div id="millionaire-stats">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-mil-replay" class="btn-primary" style="background: linear-gradient(135deg, #FFD700, #FFAB00); color: #000;">RIDE AGAIN</button>
+                    <button id="btn-mil-levels" class="btn-secondary">CHOOSE ANOTHER LEVEL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Level Complete -->
+        <div id="modal-level-complete" class="modal-overlay">
+            <div class="modal-card">
+                <h2 class="modal-title" style="color: var(--neon-cyan);">🏁 Market Horizon Reached!</h2>
+                <p class="modal-subtitle">You have successfully surfed through this historical market event.</p>
+
+                <div id="complete-stats">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-complete-replay" class="btn-primary">REPLAY LEVEL</button>
+                    <button id="btn-complete-levels" class="btn-secondary">SELECT ANOTHER LEVEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Module Script -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

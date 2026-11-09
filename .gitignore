@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+dist/
+build/
+.svelte-kit/
+.vite/
+
+# Tauri / Rust
+src-tauri/target/
+target/
+Cargo.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+env/
+venv/
+*.egg-info/
+
+# System & IDE
+.DS_Store
+Thumbs.db
+*.log
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/

@@ -1,0 +1,1242 @@
+[
+  {
+    "id": "NVDA",
+    "ticker": "NVDA",
+    "name": "NVIDIA Corp (Semiconductors / AI)",
+    "period": "5y",
+    "difficulty": "High Volatility",
+    "lore": "The undisputed king of accelerated computing and AI GPUs. Known for violent swings, earnings gaps, and massive runs.",
+    "multiplier": 1.0,
+    "spread_factor": 0.0008,
+    "min_spread": 0.04,
+    "count": 1255,
+    "avg_atr_pct": 0.0379,
+    "start_price": 30.02,
+    "end_price": 186.64,
+    "min_price": 10.77,
+    "max_price": 243.37,
+    "period_desc": "2021-11-08 to 2026-11-06",
+    "preview_candles": [
+      {
+        "date": "2021-11-08",
+        "open": 30.02,
+        "high": 30.96,
+        "low": 29.78,
+        "close": 30.67,
+        "volume": 503101000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-09",
+        "open": 32.14,
+        "high": 32.17,
+        "low": 29.83,
+        "close": 30.52,
+        "volume": 646746000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-10",
+        "open": 29.23,
+        "high": 30.71,
+        "low": 28.65,
+        "close": 29.33,
+        "volume": 636206000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-11",
+        "open": 30.33,
+        "high": 30.46,
+        "low": 29.65,
+        "close": 30.26,
+        "volume": 332172000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-12",
+        "open": 29.88,
+        "high": 30.55,
+        "low": 29.5,
+        "close": 30.26,
+        "volume": 413054000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-15",
+        "open": 30.42,
+        "high": 30.51,
+        "low": 29.12,
+        "close": 29.89,
+        "volume": 384909000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-16",
+        "open": 29.63,
+        "high": 30.26,
+        "low": 29.58,
+        "close": 30.07,
+        "volume": 264484000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-17",
+        "open": 30.28,
+        "high": 30.38,
+        "low": 28.67,
+        "close": 29.13,
+        "volume": 428508000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-18",
+        "open": 32.23,
+        "high": 32.62,
+        "low": 31.18,
+        "close": 31.54,
+        "volume": 781711000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-19",
+        "open": 32.1,
+        "high": 32.94,
+        "low": 31.77,
+        "close": 32.84,
+        "volume": 533867000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-22",
+        "open": 33.37,
+        "high": 34.5,
+        "low": 31.76,
+        "close": 31.82,
+        "volume": 754335000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-23",
+        "open": 31.4,
+        "high": 32.22,
+        "low": 30.74,
+        "close": 31.61,
+        "volume": 532163000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-24",
+        "open": 31.32,
+        "high": 32.71,
+        "low": 30.79,
+        "close": 32.53,
+        "volume": 435162000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-26",
+        "open": 32.46,
+        "high": 32.57,
+        "low": 31.21,
+        "close": 31.36,
+        "volume": 283069000,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-29",
+        "open": 32.22,
+        "high": 33.27,
+        "low": 31.9,
+        "close": 33.23,
+        "volume": 454964000,
+        "spread": 0.04
+      }
+    ]
+  },
+  {
+    "id": "TSLA",
+    "ticker": "TSLA",
+    "name": "Tesla Inc (Electric Vehicles / Tech)",
+    "period": "5y",
+    "difficulty": "Extreme Momentum",
+    "lore": "Retail favorite with legendary gamma squeezes, steep corrections, and extreme intraday velocity.",
+    "multiplier": 1.0,
+    "spread_factor": 0.001,
+    "min_spread": 0.05,
+    "count": 1255,
+    "avg_atr_pct": 0.0447,
+    "start_price": 383.26,
+    "end_price": 358.22,
+    "min_price": 101.81,
+    "max_price": 498.83,
+    "period_desc": "2021-11-08 to 2026-11-06",
+    "preview_candles": [
+      {
+        "date": "2021-11-08",
+        "open": 383.26,
+        "high": 399.0,
+        "low": 377.67,
+        "close": 387.65,
+        "volume": 100337100,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-09",
+        "open": 391.2,
+        "high": 391.5,
+        "low": 337.17,
+        "close": 341.17,
+        "volume": 177317400,
+        "spread": 0.054
+      },
+      {
+        "date": "2021-11-10",
+        "open": 336.8,
+        "high": 359.37,
+        "low": 329.1,
+        "close": 355.98,
+        "volume": 128408100,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-11",
+        "open": 367.59,
+        "high": 368.32,
+        "low": 351.56,
+        "close": 354.5,
+        "volume": 67189800,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-12",
+        "open": 349.17,
+        "high": 351.5,
+        "low": 339.73,
+        "close": 344.47,
+        "volume": 76719300,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-15",
+        "open": 339.21,
+        "high": 343.99,
+        "low": 326.2,
+        "close": 337.8,
+        "volume": 104326800,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-16",
+        "open": 334.44,
+        "high": 352.4,
+        "low": 334.06,
+        "close": 351.58,
+        "volume": 79627200,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-17",
+        "open": 354.5,
+        "high": 373.21,
+        "low": 351.83,
+        "close": 363.0,
+        "volume": 94336200,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-18",
+        "open": 368.85,
+        "high": 370.67,
+        "low": 358.34,
+        "close": 365.46,
+        "volume": 62696700,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-19",
+        "open": 366.29,
+        "high": 379.57,
+        "low": 364.23,
+        "close": 379.02,
+        "volume": 64926900,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-22",
+        "open": 387.44,
+        "high": 400.65,
+        "low": 377.48,
+        "close": 385.62,
+        "volume": 99217500,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-23",
+        "open": 389.17,
+        "high": 393.5,
+        "low": 354.23,
+        "close": 369.68,
+        "volume": 108515100,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-24",
+        "open": 360.13,
+        "high": 377.59,
+        "low": 354.0,
+        "close": 372.0,
+        "volume": 67680600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-26",
+        "open": 366.49,
+        "high": 369.59,
+        "low": 360.33,
+        "close": 360.64,
+        "volume": 35042700,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-29",
+        "open": 367.0,
+        "high": 380.89,
+        "low": 366.73,
+        "close": 379.0,
+        "volume": 58393500,
+        "spread": 0.05
+      }
+    ]
+  },
+  {
+    "id": "BTC-USD",
+    "ticker": "BTC-USD",
+    "name": "Bitcoin (Crypto Benchmark)",
+    "period": "5y",
+    "difficulty": "Wild Rollercoaster",
+    "lore": "24/7 crypto volatility. Parabolic rallies, liquidation cascades, and multi-thousand dollar daily moves.",
+    "multiplier": 0.1,
+    "spread_factor": 0.0008,
+    "min_spread": 2.0,
+    "count": 1827,
+    "avg_atr_pct": 0.0361,
+    "start_price": 67549.73,
+    "end_price": 74338.67,
+    "min_price": 15599.05,
+    "max_price": 126198.07,
+    "period_desc": "2021-11-09 to 2026-11-09",
+    "preview_candles": [
+      {
+        "date": "2021-11-09",
+        "open": 67549.73,
+        "high": 68530.34,
+        "low": 66382.06,
+        "close": 66971.83,
+        "volume": 42357991721,
+        "spread": 2.0
+      },
+      {
+        "date": "2021-11-10",
+        "open": 66953.34,
+        "high": 68789.62,
+        "low": 63208.11,
+        "close": 64995.23,
+        "volume": 48730828378,
+        "spread": 4.465
+      },
+      {
+        "date": "2021-11-11",
+        "open": 64978.89,
+        "high": 65579.02,
+        "low": 64180.49,
+        "close": 64949.96,
+        "volume": 35880633236,
+        "spread": 2.0
+      },
+      {
+        "date": "2021-11-12",
+        "open": 64863.98,
+        "high": 65460.82,
+        "low": 62333.91,
+        "close": 64155.94,
+        "volume": 36084893887,
+        "spread": 2.502
+      },
+      {
+        "date": "2021-11-13",
+        "open": 64158.12,
+        "high": 64915.68,
+        "low": 63303.73,
+        "close": 64469.53,
+        "volume": 30474228777,
+        "spread": 2.0
+      },
+      {
+        "date": "2021-11-14",
+        "open": 64455.37,
+        "high": 65495.18,
+        "low": 63647.81,
+        "close": 65466.84,
+        "volume": 25122092191,
+        "spread": 2.0
+      },
+      {
+        "date": "2021-11-15",
+        "open": 65521.29,
+        "high": 66281.57,
+        "low": 63548.14,
+        "close": 63557.87,
+        "volume": 30558763548,
+        "spread": 2.187
+      },
+      {
+        "date": "2021-11-16",
+        "open": 63721.2,
+        "high": 63721.2,
+        "low": 59016.34,
+        "close": 60161.25,
+        "volume": 46844335592,
+        "spread": 3.764
+      },
+      {
+        "date": "2021-11-17",
+        "open": 60139.62,
+        "high": 60823.61,
+        "low": 58515.41,
+        "close": 60368.01,
+        "volume": 39178392930,
+        "spread": 2.0
+      },
+      {
+        "date": "2021-11-18",
+        "open": 60360.14,
+        "high": 60948.5,
+        "low": 56550.79,
+        "close": 56942.14,
+        "volume": 41388338699,
+        "spread": 3.518
+      },
+      {
+        "date": "2021-11-19",
+        "open": 56896.13,
+        "high": 58351.11,
+        "low": 55705.18,
+        "close": 58119.58,
+        "volume": 38702407772,
+        "spread": 2.117
+      },
+      {
+        "date": "2021-11-20",
+        "open": 58115.08,
+        "high": 59859.88,
+        "low": 57469.73,
+        "close": 59697.2,
+        "volume": 30624264863,
+        "spread": 2.0
+      },
+      {
+        "date": "2021-11-21",
+        "open": 59730.51,
+        "high": 60004.43,
+        "low": 58618.93,
+        "close": 58730.48,
+        "volume": 26123447605,
+        "spread": 2.0
+      },
+      {
+        "date": "2021-11-22",
+        "open": 58706.85,
+        "high": 59266.36,
+        "low": 55679.84,
+        "close": 56289.29,
+        "volume": 35036121783,
+        "spread": 2.869
+      },
+      {
+        "date": "2021-11-23",
+        "open": 56304.55,
+        "high": 57875.52,
+        "low": 55632.76,
+        "close": 57569.07,
+        "volume": 37485803899,
+        "spread": 2.0
+      }
+    ]
+  },
+  {
+    "id": "SPY",
+    "ticker": "SPY",
+    "name": "SPDR S&P 500 ETF Trust",
+    "period": "5y",
+    "difficulty": "Benchmark Equity",
+    "lore": "The standard of global equity markets. Massive institutional liquidity, trend persistence, and sharp volatility shocks.",
+    "multiplier": 1.0,
+    "spread_factor": 0.0004,
+    "min_spread": 0.02,
+    "count": 1255,
+    "avg_atr_pct": 0.012,
+    "start_price": 439.31,
+    "end_price": 735.29,
+    "min_price": 330.51,
+    "max_price": 781.62,
+    "period_desc": "2021-11-08 to 2026-11-06",
+    "preview_candles": [
+      {
+        "date": "2021-11-08",
+        "open": 439.31,
+        "high": 439.81,
+        "low": 437.91,
+        "close": 438.59,
+        "volume": 50405200,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-09",
+        "open": 438.96,
+        "high": 439.19,
+        "low": 435.74,
+        "close": 437.14,
+        "volume": 51149100,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-10",
+        "open": 435.46,
+        "high": 437.14,
+        "low": 432.15,
+        "close": 433.62,
+        "volume": 69429700,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-11",
+        "open": 435.11,
+        "high": 435.19,
+        "low": 433.75,
+        "close": 433.77,
+        "volume": 34848500,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-12",
+        "open": 435.03,
+        "high": 437.59,
+        "low": 434.08,
+        "close": 437.04,
+        "volume": 53466700,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-15",
+        "open": 438.32,
+        "high": 438.48,
+        "low": 436.07,
+        "close": 437.19,
+        "volume": 46980500,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-16",
+        "open": 436.93,
+        "high": 440.05,
+        "low": 436.85,
+        "close": 438.92,
+        "volume": 48857500,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-17",
+        "open": 438.66,
+        "high": 438.83,
+        "low": 437.24,
+        "close": 437.85,
+        "volume": 47858300,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-18",
+        "open": 438.88,
+        "high": 439.6,
+        "low": 436.17,
+        "close": 439.34,
+        "volume": 50625600,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-19",
+        "open": 439.23,
+        "high": 440.47,
+        "low": 438.19,
+        "close": 438.55,
+        "volume": 57315600,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-22",
+        "open": 440.42,
+        "high": 442.9,
+        "low": 437.11,
+        "close": 437.32,
+        "volume": 72762000,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-23",
+        "open": 436.99,
+        "high": 438.75,
+        "low": 434.4,
+        "close": 437.9,
+        "volume": 73206500,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-24",
+        "open": 435.91,
+        "high": 439.19,
+        "low": 435.09,
+        "close": 439.07,
+        "volume": 61858800,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-26",
+        "open": 432.43,
+        "high": 433.89,
+        "low": 428.15,
+        "close": 429.28,
+        "volume": 112669600,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-29",
+        "open": 434.05,
+        "high": 436.37,
+        "low": 431.86,
+        "close": 434.54,
+        "volume": 86268800,
+        "spread": 0.02
+      }
+    ]
+  },
+  {
+    "id": "GME",
+    "ticker": "GME",
+    "name": "GameStop Corp (Meme Stock Pioneer)",
+    "period": "5y",
+    "difficulty": "Insane Squeezes",
+    "lore": "The epicenter of the retail vs hedge fund revolution. Astronomical percentage moves and sudden halts.",
+    "multiplier": 1.0,
+    "spread_factor": 0.002,
+    "min_spread": 0.05,
+    "count": 1255,
+    "avg_atr_pct": 0.0596,
+    "start_price": 53.12,
+    "end_price": 25.12,
+    "min_price": 9.95,
+    "max_price": 64.83,
+    "period_desc": "2021-11-08 to 2026-11-06",
+    "preview_candles": [
+      {
+        "date": "2021-11-08",
+        "open": 53.12,
+        "high": 56.26,
+        "low": 53.0,
+        "close": 54.66,
+        "volume": 8631600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-09",
+        "open": 55.5,
+        "high": 55.87,
+        "low": 51.11,
+        "close": 51.65,
+        "volume": 7381200,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-10",
+        "open": 50.53,
+        "high": 51.85,
+        "low": 49.12,
+        "close": 49.8,
+        "volume": 5237600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-11",
+        "open": 50.0,
+        "high": 52.02,
+        "low": 49.54,
+        "close": 51.08,
+        "volume": 4317600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-12",
+        "open": 50.53,
+        "high": 51.34,
+        "low": 49.47,
+        "close": 50.53,
+        "volume": 3712000,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-15",
+        "open": 50.97,
+        "high": 52.88,
+        "low": 50.42,
+        "close": 52.28,
+        "volume": 5865600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-16",
+        "open": 52.26,
+        "high": 53.14,
+        "low": 50.91,
+        "close": 51.79,
+        "volume": 4858400,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-17",
+        "open": 51.58,
+        "high": 54.42,
+        "low": 51.5,
+        "close": 52.5,
+        "volume": 5410800,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-18",
+        "open": 52.56,
+        "high": 53.78,
+        "low": 51.88,
+        "close": 52.53,
+        "volume": 4017600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-19",
+        "open": 52.28,
+        "high": 57.35,
+        "low": 52.06,
+        "close": 57.2,
+        "volume": 12136800,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-22",
+        "open": 57.62,
+        "high": 62.41,
+        "low": 57.44,
+        "close": 61.89,
+        "volume": 17485600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-23",
+        "open": 60.96,
+        "high": 63.05,
+        "low": 53.14,
+        "close": 53.47,
+        "volume": 13380800,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-24",
+        "open": 54.31,
+        "high": 56.0,
+        "low": 52.0,
+        "close": 52.94,
+        "volume": 5237600,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-26",
+        "open": 52.02,
+        "high": 52.93,
+        "low": 49.8,
+        "close": 49.93,
+        "volume": 4941200,
+        "spread": 0.05
+      },
+      {
+        "date": "2021-11-29",
+        "open": 51.0,
+        "high": 51.98,
+        "low": 50.24,
+        "close": 50.5,
+        "volume": 4435200,
+        "spread": 0.05
+      }
+    ]
+  },
+  {
+    "id": "AAPL",
+    "ticker": "AAPL",
+    "name": "Apple Inc (Consumer Tech Giant)",
+    "period": "5y",
+    "difficulty": "Smooth Trend",
+    "lore": "The multi-trillion dollar tech fortress. Consistent institutional accumulation with deep cyclical pullbacks.",
+    "multiplier": 1.0,
+    "spread_factor": 0.0004,
+    "min_spread": 0.02,
+    "count": 1255,
+    "avg_atr_pct": 0.0214,
+    "start_price": 147.9,
+    "end_price": 342.37,
+    "min_price": 121.99,
+    "max_price": 355.38,
+    "period_desc": "2021-11-08 to 2026-11-06",
+    "preview_candles": [
+      {
+        "date": "2021-11-08",
+        "open": 147.9,
+        "high": 148.05,
+        "low": 146.68,
+        "close": 146.95,
+        "volume": 55020900,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-09",
+        "open": 146.71,
+        "high": 147.92,
+        "low": 146.58,
+        "close": 147.31,
+        "volume": 56787900,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-10",
+        "open": 146.54,
+        "high": 146.65,
+        "low": 144.42,
+        "close": 144.49,
+        "volume": 65187100,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-11",
+        "open": 145.5,
+        "high": 145.96,
+        "low": 144.25,
+        "close": 144.44,
+        "volume": 41000000,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-12",
+        "open": 144.99,
+        "high": 146.91,
+        "low": 144.06,
+        "close": 146.51,
+        "volume": 63804000,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-15",
+        "open": 146.88,
+        "high": 148.36,
+        "low": 145.96,
+        "close": 146.52,
+        "volume": 59222800,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-16",
+        "open": 146.46,
+        "high": 147.97,
+        "low": 145.87,
+        "close": 147.5,
+        "volume": 59256200,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-17",
+        "open": 147.5,
+        "high": 151.4,
+        "low": 147.49,
+        "close": 149.93,
+        "volume": 88807000,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-18",
+        "open": 150.14,
+        "high": 154.99,
+        "low": 149.5,
+        "close": 154.21,
+        "volume": 137827700,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-19",
+        "open": 153.99,
+        "high": 157.28,
+        "low": 152.9,
+        "close": 156.82,
+        "volume": 117305600,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-22",
+        "open": 157.93,
+        "high": 161.85,
+        "low": 157.26,
+        "close": 157.28,
+        "volume": 117467900,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-23",
+        "open": 157.38,
+        "high": 158.05,
+        "low": 155.37,
+        "close": 157.66,
+        "volume": 96041900,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-24",
+        "open": 157.02,
+        "high": 158.38,
+        "low": 155.94,
+        "close": 158.18,
+        "volume": 69463600,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-26",
+        "open": 155.87,
+        "high": 156.73,
+        "low": 152.73,
+        "close": 153.17,
+        "volume": 76959800,
+        "spread": 0.02
+      },
+      {
+        "date": "2021-11-29",
+        "open": 155.67,
+        "high": 157.45,
+        "low": 155.11,
+        "close": 156.52,
+        "volume": 88748200,
+        "spread": 0.02
+      }
+    ]
+  },
+  {
+    "id": "AMD",
+    "ticker": "AMD",
+    "name": "Advanced Micro Devices",
+    "period": "5y",
+    "difficulty": "High Beta Tech",
+    "lore": "High-beta semiconductor pioneer. Sharp rallies and deep cyclical drawdowns across gaming and datacenter cycles.",
+    "multiplier": 1.0,
+    "spread_factor": 0.0008,
+    "min_spread": 0.04,
+    "count": 1255,
+    "avg_atr_pct": 0.0425,
+    "start_price": 137.7,
+    "end_price": 449.04,
+    "min_price": 54.57,
+    "max_price": 658.52,
+    "period_desc": "2021-11-08 to 2026-11-06",
+    "preview_candles": [
+      {
+        "date": "2021-11-08",
+        "open": 137.7,
+        "high": 153.6,
+        "low": 137.7,
+        "close": 150.16,
+        "volume": 141493800,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-09",
+        "open": 154.01,
+        "high": 155.65,
+        "low": 143.89,
+        "close": 148.92,
+        "volume": 98442600,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-10",
+        "open": 143.93,
+        "high": 146.3,
+        "low": 138.52,
+        "close": 139.87,
+        "volume": 82989200,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-11",
+        "open": 142.96,
+        "high": 146.47,
+        "low": 140.84,
+        "close": 146.01,
+        "volume": 67934800,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-12",
+        "open": 146.03,
+        "high": 148.59,
+        "low": 144.25,
+        "close": 147.89,
+        "volume": 52162100,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-15",
+        "open": 148.0,
+        "high": 148.98,
+        "low": 142.86,
+        "close": 146.49,
+        "volume": 52271300,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-16",
+        "open": 145.93,
+        "high": 153.08,
+        "low": 145.34,
+        "close": 152.45,
+        "volume": 53100800,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-17",
+        "open": 151.98,
+        "high": 154.66,
+        "low": 149.69,
+        "close": 151.34,
+        "volume": 54527500,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-18",
+        "open": 157.07,
+        "high": 158.89,
+        "low": 152.56,
+        "close": 155.02,
+        "volume": 60612700,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-19",
+        "open": 155.76,
+        "high": 156.92,
+        "low": 153.45,
+        "close": 155.41,
+        "volume": 41668900,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-22",
+        "open": 157.14,
+        "high": 161.88,
+        "low": 152.39,
+        "close": 152.52,
+        "volume": 58674100,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-23",
+        "open": 150.41,
+        "high": 152.66,
+        "low": 145.3,
+        "close": 149.92,
+        "volume": 62852700,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-24",
+        "open": 149.46,
+        "high": 157.93,
+        "low": 147.19,
+        "close": 157.8,
+        "volume": 60677100,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-26",
+        "open": 155.8,
+        "high": 158.1,
+        "low": 152.81,
+        "close": 154.81,
+        "volume": 36245100,
+        "spread": 0.04
+      },
+      {
+        "date": "2021-11-29",
+        "open": 157.5,
+        "high": 162.51,
+        "low": 156.1,
+        "close": 161.91,
+        "volume": 57438900,
+        "spread": 0.04
+      }
+    ]
+  },
+  {
+    "id": "QQQ",
+    "ticker": "QQQ",
+    "name": "Invesco QQQ Trust (Nasdaq 100)",
+    "period": "5y",
+    "difficulty": "Tech Momentum",
+    "lore": "The tech-heavy powerhouse index tracking top non-financial innovative giants.",
+    "multiplier": 1.0,
+    "spread_factor": 0.0005,
+    "min_spread": 0.03,
+    "count": 1255,
+    "avg_atr_pct": 0.0163,
+    "start_price": 386.83,
+    "end_price": 656.1,
+    "min_price": 248.31,
+    "max_price": 762.86,
+    "period_desc": "2021-11-08 to 2026-11-06",
+    "preview_candles": [
+      {
+        "date": "2021-11-08",
+        "open": 386.83,
+        "high": 387.85,
+        "low": 385.7,
+        "close": 386.34,
+        "volume": 29256300,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-09",
+        "open": 387.41,
+        "high": 387.8,
+        "low": 382.32,
+        "close": 383.68,
+        "volume": 50490700,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-10",
+        "open": 380.91,
+        "high": 383.72,
+        "low": 376.12,
+        "close": 378.04,
+        "volume": 54937400,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-11",
+        "open": 381.01,
+        "high": 381.19,
+        "low": 378.75,
+        "close": 379.09,
+        "volume": 32243000,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-12",
+        "open": 380.23,
+        "high": 383.61,
+        "low": 378.64,
+        "close": 383.08,
+        "volume": 34730600,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-15",
+        "open": 384.25,
+        "high": 384.57,
+        "low": 380.55,
+        "close": 382.99,
+        "volume": 33716900,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-16",
+        "open": 382.26,
+        "high": 386.21,
+        "low": 382.07,
+        "close": 385.72,
+        "volume": 27872900,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-17",
+        "open": 386.04,
+        "high": 387.95,
+        "low": 384.96,
+        "close": 385.92,
+        "volume": 28703300,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-18",
+        "open": 387.96,
+        "high": 390.42,
+        "low": 385.75,
+        "close": 389.92,
+        "volume": 45721500,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-19",
+        "open": 391.55,
+        "high": 393.37,
+        "low": 390.73,
+        "close": 392.09,
+        "volume": 45191700,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-22",
+        "open": 393.63,
+        "high": 396.68,
+        "low": 387.44,
+        "close": 387.54,
+        "volume": 61715400,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-23",
+        "open": 386.39,
+        "high": 388.44,
+        "low": 381.35,
+        "close": 385.78,
+        "volume": 70098700,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-24",
+        "open": 383.3,
+        "high": 387.3,
+        "low": 380.98,
+        "close": 387.02,
+        "volume": 46954400,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-26",
+        "open": 384.45,
+        "high": 385.83,
+        "low": 378.29,
+        "close": 379.68,
+        "volume": 51533300,
+        "spread": 0.03
+      },
+      {
+        "date": "2021-11-29",
+        "open": 384.23,
+        "high": 388.93,
+        "low": 383.5,
+        "close": 387.92,
+        "volume": 54447100,
+        "spread": 0.03
+      }
+    ]
+  }
+]
