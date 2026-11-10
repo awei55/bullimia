@@ -91,4 +91,4 @@
   3. **Purged Meta-Text & Spoilers**: Removed all "SINGLE ASSET TUTORIAL REGIME // Uncle Gordon is watching" banners; bottom asset selector bar remains cleanly hidden until Uncle Gordon wires capital.
   4. **Purged AI Header Badges**: Removed redundant descriptive header badges from the top of the start screen.
   5. **Procedural Audio FX Enhancements**: Built dedicated synthesized sound effects for winning trades (C-major ascending arpeggio + high coin ping), losing trades (gritty downward crunch + dissonant minor buzz), and margin call liquidation (catastrophic noise burst explosion + deep sub-bass drop).
-  6. **Character Liquidation Death Animation**: Added WebGL death sequence upon margin call: character explodes into a shower of 110 sparks, tumbles and spins downward off the screen with gravity, violent screen shake, and delayed modal appearance.
+  6. **Character Liquidation Death Animation**: Added WebGL death sequence upon margin call: character explodes into a shower of 110 sparks, tumbles and spins downward off the screen with gravity, violent screen shake, and delayed modal appearance (`952581c`).
