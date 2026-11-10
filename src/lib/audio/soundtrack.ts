@@ -270,43 +270,120 @@ export class SoundtrackEngine {
   public playWin(pnl: number) {
     if (!this.ctx || !this.sfxGain || this.isMuted) return;
     const now = this.ctx.currentTime;
-    const chord = [523.25, 659.25, 783.99, 1046.50]; // C Major arpeggio
+
+    // 1. Ascending retro arcade arpeggio (C5 -> E5 -> G5 -> C6 -> E6)
+    const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51];
     chord.forEach((freq, idx) => {
       if (!this.ctx || !this.sfxGain) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.05);
 
-      gain.gain.setValueAtTime(0.2, now + idx * 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.4);
+      gain.gain.setValueAtTime(0.25, now + idx * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.35);
 
       osc.connect(gain);
       gain.connect(this.sfxGain);
-      osc.start(now + idx * 0.06);
-      osc.stop(now + idx * 0.06 + 0.45);
+      osc.start(now + idx * 0.05);
+      osc.stop(now + idx * 0.05 + 0.38);
     });
+
+    // 2. 8-Bit High Coin Sparkle Ping
+    const pingOsc = this.ctx.createOscillator();
+    const pingGain = this.ctx.createGain();
+    pingOsc.type = 'square';
+    pingOsc.frequency.setValueAtTime(987.77, now + 0.15);
+    pingOsc.frequency.setValueAtTime(1318.51, now + 0.22);
+    pingGain.gain.setValueAtTime(0.15, now + 0.15);
+    pingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+    pingOsc.connect(pingGain);
+    pingGain.connect(this.sfxGain);
+    pingOsc.start(now + 0.15);
+    pingOsc.stop(now + 0.46);
   }
 
   public playLoss(pnl: number) {
     if (!this.ctx || !this.sfxGain || this.isMuted) return;
     const now = this.ctx.currentTime;
-    const chord = [220.0, 207.65, 196.0]; // descending chromatic gloom
-    chord.forEach((freq, idx) => {
-      if (!this.ctx || !this.sfxGain) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(freq, now + idx * 0.09);
 
-      gain.gain.setValueAtTime(0.25, now + idx * 0.09);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.5);
+    // 1. Gritty downward pitch-bend crunch
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(320.0, now);
+    osc.frequency.exponentialRampToValueAtTime(70.0, now + 0.28);
 
-      osc.connect(gain);
-      gain.connect(this.sfxGain);
-      osc.start(now + idx * 0.09);
-      osc.stop(now + idx * 0.09 + 0.55);
-    });
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.33);
+
+    // 2. Dissonant minor buzz tone
+    const buzz = this.ctx.createOscillator();
+    const buzzGain = this.ctx.createGain();
+    buzz.type = 'square';
+    buzz.frequency.setValueAtTime(146.83, now + 0.05); // D3
+    buzz.frequency.setValueAtTime(138.59, now + 0.15); // C#3 (dissonance)
+    buzzGain.gain.setValueAtTime(0.2, now + 0.05);
+    buzzGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+    buzz.connect(buzzGain);
+    buzzGain.connect(this.sfxGain);
+    buzz.start(now + 0.05);
+    buzz.stop(now + 0.42);
+  }
+
+  public playDeath() {
+    if (!this.ctx || !this.sfxGain || this.isMuted) return;
+    const now = this.ctx.currentTime;
+
+    // 1. Noise burst explosion
+    try {
+      const bufferSize = this.ctx.sampleRate * 0.4;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1200, now);
+      filter.frequency.exponentialRampToValueAtTime(80, now + 0.38);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.6, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(this.sfxGain);
+
+      noise.start(now);
+      noise.stop(now + 0.42);
+    } catch (e) {}
+
+    // 2. Catastrophic sub-bass slide
+    const sub = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    sub.type = 'sawtooth';
+    sub.frequency.setValueAtTime(240, now);
+    sub.frequency.exponentialRampToValueAtTime(30, now + 0.6);
+
+    subGain.gain.setValueAtTime(0.5, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+
+    sub.connect(subGain);
+    subGain.connect(this.sfxGain);
+    sub.start(now);
+    sub.stop(now + 0.68);
   }
 
   public playMarginWarning() {

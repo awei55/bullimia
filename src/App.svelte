@@ -137,6 +137,7 @@
     isTradingActive.set(true);
 
     if (engine) {
+      engine.resetCharacterState();
       const data = await loadLevel('NVDA', false);
       engine.setLevel(data);
     }
@@ -265,9 +266,14 @@
       acc.free_margin = amount;
       if (amount > acc.high_watermark) acc.high_watermark = amount;
       acc.is_millionaire = amount >= 1000000.0;
-      acc.is_margin_called = false;
+      acc.is_margin_called = amount <= 0;
       return acc;
     });
+
+    if (amount <= 0) {
+      isDevConsoleOpen = false;
+      return;
+    }
 
     // Unlock benefactor features automatically if warped past milestones
     if (amount >= 10000.0) {
@@ -349,8 +355,8 @@
     {/if}
   </div>
 
-  <!-- Bottom Asset Ticker Quick-Bar (Shown when on Chart/Console during active gameplay) -->
-  {#if !inStartMenu && (activeView === 'CHART' || activeView === 'CONSOLE')}
+  <!-- Bottom Asset Ticker Quick-Bar (Shown when on Chart/Console during active gameplay once unlocked) -->
+  {#if !inStartMenu && (activeView === 'CHART' || activeView === 'CONSOLE') && $benefactorState.assetBarUnlocked}
     <AssetTickerBar
       onSelectAsset={handleSelectAsset}
       onCustomTicker={handleCustomTicker}
@@ -388,5 +394,5 @@
   />
 
   <TradeLogModal isOpen={isTradeLogOpen} onClose={() => (isTradeLogOpen = false)} />
-  <GameOverModal onRestart={handleJumpEpoch} />
+  <GameOverModal onRestart={handleStartNewCareer} />
 </main>

@@ -34,17 +34,12 @@
 
     <!-- Arcade Header Banner -->
     <div class="mb-6">
-      <div class="inline-flex items-center space-x-2 px-3 py-1 bg-black/60 border border-neon-cyan/40 text-[9px] pixel-text text-neon-cyan tracking-widest uppercase mb-3">
-        <Zap class="w-3 h-3 text-neon-cyan animate-pulse" />
-        <span>CYBER-FINANCIAL 2D AUTOSCROLLER</span>
-      </div>
-
       <!-- Giant Pixel Game Title -->
-      <h1 class="text-4xl sm:text-5xl font-black pixel-title tracking-tight text-white flex items-center justify-center space-x-1 my-2">
+      <h1 class="text-4xl sm:text-5xl font-black pixel-title tracking-tight text-white flex items-center justify-center space-x-1 mb-3">
         <span class="text-bull">BULL</span><span class="text-bear">IMIA</span>
       </h1>
       
-      <p class="text-[11px] pixel-text text-neon-amber mt-2 tracking-wide uppercase">
+      <p class="text-[11px] pixel-text text-neon-amber tracking-wide uppercase">
         SURF THE TAPE • FLIP AT THE SPREAD • ESCAPE LIQUIDATION
       </p>
     </div>

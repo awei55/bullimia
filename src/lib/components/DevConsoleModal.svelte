@@ -1,6 +1,6 @@
 <script lang="ts">
   import { account, wireUncleGordonCapital } from '../stores/trading';
-  import { X, Terminal, Zap, Shield, DollarSign, FastForward, Save, Radio } from 'lucide-svelte';
+  import { X, Terminal, Zap, Shield, ShieldAlert, DollarSign, FastForward, Save, Radio } from 'lucide-svelte';
 
   export let isOpen = false;
   export let onClose: () => void = () => {};
@@ -148,6 +148,19 @@
                 <span class="pixel-text text-[9px]">TRIGGER UNCLE GORDON WIRE</span>
               </div>
               <span class="text-[10px] text-terminal-muted">+$9,000 & MULTI-ASSET</span>
+            </button>
+
+            <!-- Trigger Margin Call (Liquidation Test) -->
+            <button
+              type="button"
+              on:click={() => handleWarp(0)}
+              class="w-full py-2.5 px-3 cel-btn bg-bear/20 hover:bg-bear/30 text-bear flex items-center justify-between cursor-pointer font-bold border-2 border-bear/40"
+            >
+              <div class="flex items-center space-x-2">
+                <ShieldAlert class="w-4 h-4 text-bear" />
+                <span class="pixel-text text-[9px]">TRIGGER MARGIN CALL</span>
+              </div>
+              <span class="text-[10px] text-terminal-muted">TEST LIQUIDATION</span>
             </button>
 
             <!-- Reset to $1K -->

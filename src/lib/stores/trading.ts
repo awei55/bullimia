@@ -233,6 +233,8 @@ export async function executeOrder(
         } else {
           soundEngine.playLoss(data.closed_trade.pnl);
         }
+      } else {
+        soundEngine.playOrderExecuted(side, lots);
       }
       handledOnBackend = true;
     }
@@ -242,8 +244,6 @@ export async function executeOrder(
   if (!handledOnBackend) {
     clientSideExecuteOrder(ticker, side, lots, price, timestamp, atrPct, candleIdx);
   }
-
-  soundEngine.playOrderExecuted(side, lots);
 }
 
 function clientSideExecuteOrder(
@@ -294,6 +294,8 @@ function clientSideExecuteOrder(
       tradeHistory.update((h) => [...h, closedTrade!]);
       if (isWin) soundEngine.playWin(realizedPnl);
       else soundEngine.playLoss(realizedPnl);
+    } else {
+      soundEngine.playOrderExecuted(side, lots);
     }
 
     // Open new position

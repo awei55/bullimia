@@ -1,16 +1,33 @@
 <script lang="ts">
-  import { account, resetCareer } from '../stores/trading';
-  import { Trophy, ShieldAlert, RotateCcw } from 'lucide-svelte';
+  import { account } from '../stores/trading';
+  import { ShieldAlert, RotateCcw } from 'lucide-svelte';
 
   export let onRestart: () => void = () => {};
 
+  let showModal = false;
+  let isRestarting = false;
+
+  $: if ($account.is_margin_called) {
+    const timer = setTimeout(() => {
+      showModal = true;
+    }, 600);
+  } else {
+    showModal = false;
+  }
+
   async function handleRestart() {
-    await resetCareer(1000.0);
-    onRestart();
+    if (isRestarting) return;
+    isRestarting = true;
+    try {
+      showModal = false;
+      await onRestart();
+    } finally {
+      isRestarting = false;
+    }
   }
 </script>
 
-{#if $account.is_margin_called}
+{#if showModal}
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 select-none crt-overlay">
     <div class="w-full max-w-md cel-panel border-4 border-bear p-6 text-center shadow-[6px_6px_0px_#000] cyber-clip animate-in zoom-in-95 duration-200">
       <div class="w-16 h-16 rounded-none bg-bear text-white mx-auto flex items-center justify-center mb-4 border-2 border-black shadow-[3px_3px_0_#000]">

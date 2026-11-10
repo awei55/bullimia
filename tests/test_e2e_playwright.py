@@ -83,10 +83,10 @@ def run_e2e_test():
             assert 700.0 <= initial_equity <= 1400.0, f"Initial equity should be ~$1,000 (with live PnL)! Got: {initial_equity}"
             print("Confirmed Initial Equity is active around $1,000 USD mark.")
 
-            # Verify locked asset selector
-            locked_banner = page.locator("text=SINGLE ASSET TUTORIAL REGIME")
-            assert locked_banner.is_visible(), "Asset bar must be locked in Genesis tutorial!"
-            print("Confirmed Asset Switcher is LOCKED (Single asset tutorial regime).")
+            # Verify asset buttons (AAPL, TSLA) are NOT visible before wire
+            assert page.locator("button:has-text('AAPL')").count() == 0, "Multi-asset buttons must NOT be visible before wire!"
+            assert page.locator("button:has-text('TSLA')").count() == 0, "Multi-asset buttons must NOT be visible before wire!"
+            print("Confirmed Asset Switcher is LOCKED/HIDDEN (Single asset initial run).")
 
             # Verify DESK / BOTS / PORTFOLIO tabs are NOT in DOM
             assert page.locator("button:has-text('DESK')").count() == 0, "Phase 2 DESK tab should be hidden at $1,000"
@@ -220,6 +220,30 @@ def run_e2e_test():
 
             page.wait_for_selector("text=MACRO CAPITAL & SOVEREIGN DESK", timeout=5000)
             print("Successfully resumed career state back into Phase 4!")
+
+            # --- STEP 9: TEST MARGIN CALL & RESTART RUN ---
+            print("--- STEP 9: MARGIN CALL & RESTART VERIFICATION ---")
+            page.click("text=DEV")
+            page.wait_for_selector("text=TRIGGER MARGIN CALL", timeout=5000)
+            page.click("text=TRIGGER MARGIN CALL")
+            time.sleep(1.2)
+
+            # Wait for GameOverModal ("MARGIN CALLED")
+            page.wait_for_selector("text=MARGIN CALLED", timeout=5000)
+            print("GameOverModal displayed upon liquidation!")
+            ss_gameover = "D:\\Caynex\\minigames\\screenshot_gameover_modal.png"
+            page.screenshot(path=ss_gameover)
+            print(f"Captured: {ss_gameover}")
+
+            # Click RESTART RUN ($1,000 START)
+            page.click("text=RESTART RUN ($1,000 START)")
+            time.sleep(1.5)
+
+            # Verify game is active with $1,000 on NVDA and GameOverModal is gone
+            assert page.locator("text=MARGIN CALLED").count() == 0, "GameOverModal must be dismissed after restart!"
+            hud_after_restart = page.locator("header").text_content()
+            assert "NVDA" in hud_after_restart, "Asset must reset to NVDA upon restart!"
+            print("Confirmed game restarted cleanly at $1,000 on NVDA after margin call liquidation!")
 
             # Verify zero critical console errors
             critical_errors = [

@@ -115,6 +115,13 @@ export class BullimiaPixiEngine {
   // Particle System
   private particles: GameParticle[] = [];
 
+  // Death Animation State
+  private isDead: boolean = false;
+  private deathTimer: number = 0;
+  private deathVy: number = 0;
+  private deathRotSpeed: number = 0;
+  private accountUnsub: (() => void) | null = null;
+
   // Entry tracking for active trade line
   private activeEntryPrice: number = 0;
   private activeEntryCandleIdx: number = 0;
@@ -197,11 +204,52 @@ export class BullimiaPixiEngine {
 
     this.setupInputListeners();
 
+    // Listen to account for margin call death animation
+    this.accountUnsub = account.subscribe((acc) => {
+      if (acc.is_margin_called && !this.isDead) {
+        this.triggerDeath();
+      }
+    });
+
     // Start 60 FPS ticker
     this.app.ticker.add((ticker) => {
       this.update(ticker.deltaTime / 60);
       this.render();
     });
+  }
+
+  public triggerDeath() {
+    this.isDead = true;
+    this.deathTimer = 0;
+    this.deathVy = -240; // Dramatic upward pop before plummeting
+    this.deathRotSpeed = (Math.random() > 0.5 ? 1 : -1) * 14; // High-speed arcade tumble
+    this.addShake(28, 1.4);
+    soundEngine.playDeath();
+
+    // Giant explosion of sparks & shattered debris
+    this.spawnSparks(this.playerX, this.playerY, 0xff0055, 60);
+    this.spawnSparks(this.playerX, this.playerY, 0xffd700, 30);
+    this.spawnSparks(this.playerX, this.playerY, 0xffffff, 20);
+
+    this.livePnlBadgeGfx.clear();
+    this.activeTradeLineLayer.clear();
+    this.orderBadgeGfx.clear();
+  }
+
+  public resetCharacterState() {
+    this.isDead = false;
+    this.deathTimer = 0;
+    this.deathVy = 0;
+    this.bullContainer.rotation = 0;
+    this.bearContainer.rotation = 0;
+    this.bullContainer.alpha = 1.0;
+    this.bearContainer.alpha = 1.0;
+    this.bullContainer.position.set(0, 0);
+    this.bearContainer.position.set(0, 0);
+    this.particles = [];
+    this.livePnlBadgeGfx.clear();
+    this.activeTradeLineLayer.clear();
+    this.orderBadgeGfx.clear();
   }
 
   public addShake(intensity: number = 6, duration: number = 0.25) {
@@ -214,6 +262,7 @@ export class BullimiaPixiEngine {
     startCandleIdx?: number,
     restoredPosition?: { side: PositionSide; lots: number; entryPrice: number } | null
   ) {
+    this.resetCharacterState();
     this.level = level;
     this.candles = level.candles;
     this.avgAtrPct = level.avg_atr_pct || 0.028;
@@ -344,6 +393,32 @@ export class BullimiaPixiEngine {
   private update(dt: number) {
     if (!this.level || this.candles.length === 0) return;
 
+    // Handle Character Death Animation when Margin Called
+    if (this.isDead) {
+      this.deathTimer += dt;
+      this.deathVy += 980 * dt; // Gravity pulls character downward into the void
+      this.playerY += this.deathVy * dt;
+
+      this.bullContainer.rotation += this.deathRotSpeed * dt;
+      this.bearContainer.rotation += this.deathRotSpeed * dt;
+
+      const alpha = Math.max(0, 1 - this.deathTimer / 1.4);
+      this.bullContainer.alpha = alpha;
+      this.bearContainer.alpha = alpha;
+
+      const charScreenX = this.playerX - this.cameraX;
+      const charScreenY = this.playerY - this.cameraY;
+      this.bullContainer.position.set(charScreenX, charScreenY);
+      this.bearContainer.position.set(charScreenX, charScreenY);
+
+      if (this.deathTimer < 0.8 && Math.random() < 0.6) {
+        this.spawnSparks(this.playerX + (Math.random() * 20 - 10), this.playerY + (Math.random() * 20 - 10), 0xff2e63, 3);
+      }
+
+      this.updateParticles(dt);
+      return;
+    }
+
     this.animTime += dt;
     this.runCycle += dt * 14; // Footstep animation
 
@@ -380,7 +455,7 @@ export class BullimiaPixiEngine {
     const targetY = this.side === 'BULL' ? candleTopY - 24 : candleBottomY + 24;
     this.playerY += (targetY - this.playerY) * 0.16;
 
-    // Vibration Charging
+    // Vibration Charging & Energetic Particle Sparks
     let vibX = 0;
     let vibY = 0;
     if (this.spaceHeld) {
@@ -389,11 +464,17 @@ export class BullimiaPixiEngine {
       chargeProgress.set(progress);
       soundEngine.playVibrateCharge(progress);
 
-      const amp = 3.0 + progress * 14.0;
+      const amp = 4.0 + progress * 16.0;
       vibX = (Math.random() - 0.5) * amp;
       vibY = (Math.random() - 0.5) * amp;
 
-      if (Math.random() < 0.25) {
+      // Charge sparks leaping off character
+      if (Math.random() < 0.7) {
+        const sparkCol = this.side === 'BULL' ? 0x00e5ff : 0xff0055;
+        this.spawnSparks(this.playerX + (Math.random() * 24 - 12), this.playerY + (Math.random() * 24 - 12), sparkCol, 2);
+      }
+
+      if (Math.random() < 0.35) {
         this.spawnSteam(this.playerX + 20, this.playerY, 1);
       }
     }
@@ -428,16 +509,11 @@ export class BullimiaPixiEngine {
     this.drawBullCharacter();
     this.drawBearCharacter();
 
-    // Overhead Charge Badge
-    if (this.spaceHeld) {
-      let lots = 1;
-      chargedLots.subscribe((l) => (lots = l))();
-      let p = 0;
-      chargeProgress.subscribe((val) => (p = val))();
-      this.drawOrderBadge(charScreenX, charScreenY, lots, p);
-    } else {
-      this.orderBadgeGfx.clear();
-    }
+    // Clear order badge gfx to guarantee no rogue lines to (0,0)
+    this.orderBadgeGfx.clear();
+
+    // Live Position PnL Badge near character
+    this.drawLivePositionPnl(charScreenX, charScreenY);
 
     // Live Position PnL Badge near character
     this.drawLivePositionPnl(charScreenX, charScreenY);
@@ -601,42 +677,16 @@ export class BullimiaPixiEngine {
     }
   }
 
-  // --- Overhead Circular Lot Sizing Gauge ---
-  private drawOrderBadge(charX: number, charY: number, lots: number, progress: number) {
-    this.orderBadgeGfx.clear();
-    const g = this.orderBadgeGfx;
-
-    const badgeY = this.side === 'BULL' ? charY - 55 : charY + 55;
-    const radius = 22;
-
-    // Background circle
-    g.circle(charX, badgeY, radius);
-    g.fill({ color: 0x080c14, alpha: 0.92 });
-    g.stroke({ color: 0x242d3d, width: 3 });
-
-    // Glowing active progress arc
-    const startAngle = -Math.PI / 2;
-    const endAngle = startAngle + Math.PI * 2 * progress;
-    const arcColor = progress > 0.8 ? 0xff0055 : progress > 0.4 ? 0xffd700 : 0x00e5ff;
-
-    g.arc(charX, badgeY, radius, startAngle, endAngle);
-    g.stroke({ color: arcColor, width: 3.5 });
-
-    // Lot count text inside pill
-    // Note: PIXI Graphics draw calls
-    g.roundRect(charX - 26, badgeY - 10, 52, 20, 4);
-    g.fill({ color: 0x101622, alpha: 0.9 });
-    g.stroke({ color: arcColor, width: 1.5 });
-  }
-
   // --- Floating Live Position PnL Badge near Character ---
   private drawLivePositionPnl(charX: number, charY: number) {
     this.livePnlBadgeGfx.clear();
     this.activeTradeLineLayer.clear();
 
-    if (this.side === 'FLAT') return;
+    if (this.side === 'FLAT' || this.isDead || !this.activeEntryPrice || this.activeEntryPrice <= 0 || this.activeEntryCandleIdx === undefined) return;
 
     const acc = get(account);
+    if (!acc || acc.side === 'FLAT' || acc.open_lots === 0) return;
+
     const pnl = acc.unrealized_pnl;
     const isProfit = pnl >= 0;
     const col = isProfit ? 0x00f59b : 0xff2e63;
@@ -645,14 +695,16 @@ export class BullimiaPixiEngine {
     const entryScreenX = this.activeEntryCandleIdx * this.candleStep - this.cameraX;
     const entryScreenY = this.priceToScreenY(this.activeEntryPrice) - this.cameraY;
 
-    this.activeTradeLineLayer.moveTo(entryScreenX, entryScreenY);
-    this.activeTradeLineLayer.lineTo(charX, charY);
-    this.activeTradeLineLayer.stroke({ color: col, width: 2, alpha: 0.75 });
+    if (!isNaN(entryScreenX) && !isNaN(entryScreenY) && entryScreenX > -400 && entryScreenX < 3500) {
+      this.activeTradeLineLayer.moveTo(entryScreenX, entryScreenY);
+      this.activeTradeLineLayer.lineTo(charX, charY);
+      this.activeTradeLineLayer.stroke({ color: col, width: 2, alpha: 0.75 });
 
-    // Entry point beacon
-    this.activeTradeLineLayer.circle(entryScreenX, entryScreenY, 4.5);
-    this.activeTradeLineLayer.fill({ color: col });
-    this.activeTradeLineLayer.stroke({ color: 0xffffff, width: 1 });
+      // Entry point beacon
+      this.activeTradeLineLayer.circle(entryScreenX, entryScreenY, 4.5);
+      this.activeTradeLineLayer.fill({ color: col });
+      this.activeTradeLineLayer.stroke({ color: 0xffffff, width: 1 });
+    }
 
     // 2. Floating PnL badge right beside character
     const badgeX = charX + 38;
@@ -1047,6 +1099,10 @@ export class BullimiaPixiEngine {
   }
 
   public destroy() {
+    if (this.accountUnsub) {
+      this.accountUnsub();
+      this.accountUnsub = null;
+    }
     if (this.app) {
       this.app.destroy(true, { children: true, texture: true });
       this.app = null;
