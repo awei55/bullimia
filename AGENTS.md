@@ -9,27 +9,27 @@
 Whenever you begin a task, respond to a user request, or resume development in this repository, you **MUST** follow this bootstrap sequence:
 
 1. **Step 1: Ingest Living Project State (`docs/TRACKER.md`)**
-   - Read or consult [docs/TRACKER.md](file:///D:/Caynex/minigames/docs/TRACKER.md).
+   - Read or consult [docs/TRACKER.md](file:///D:/GitRepos/bullimia/docs/TRACKER.md).
    - This file contains the authoritative record of active milestones, completed features, known issues, test pass rates, and the chronological changelog.
-   - **Rule**: If you add, modify, or fix any component, you **MUST** update [docs/TRACKER.md](file:///D:/Caynex/minigames/docs/TRACKER.md) before concluding your turn.
+   - **Rule**: If you add, modify, or fix any component, you **MUST** update [docs/TRACKER.md](file:///D:/GitRepos/bullimia/docs/TRACKER.md) before concluding your turn.
 
 2. **Step 2: Respect the Sealed Architectural Boundary (`docs/ARCHITECTURE.md`)**
-   - Review [docs/ARCHITECTURE.md](file:///D:/Caynex/minigames/docs/ARCHITECTURE.md).
+   - Review [docs/ARCHITECTURE.md](file:///D:/GitRepos/bullimia/docs/ARCHITECTURE.md).
    - **Zero-Presentation Rule**: `backend/bullimia_quant/kernel.py` and core client-side accounting math are pure, headless domain logic. Never mix DOM, Svelte components, PixiJS graphics, or Web Audio into financial math.
    - **Modifier Pipeline**: Difficulties, character archetypes, market shocks, and minigame rewards plug in as composable modifiers evaluated into `TradeContext`, never hardcoded if/else branches in the kernel.
 
 3. **Step 3: Consult Master Design & Data Catalogs**
-   - [docs/DATA_CATALOG.md](file:///D:/Caynex/minigames/docs/DATA_CATALOG.md): Complete index of all 8 asset datasets, 6 historical event epochs, ATR log scaling formulas, and WebSocket/REST schemas.
-   - [docs/GAME_DESIGN_MEMORY.md](file:///D:/Caynex/minigames/docs/GAME_DESIGN_MEMORY.md): Deep memory of the 4-phase progression, the Genesis Tutorial ($1K start), Uncle Gordon's 3-trigger wire (+$9K), macro news alert system, and endgame autotrading.
-   - [docs/GRAND_VISION_ROADMAP.md](file:///D:/Caynex/minigames/docs/GRAND_VISION_ROADMAP.md): High-level trajectory from Retail Arcade to Sovereign Quant Empire.
-   - [docs/PROGRESSION_AND_UNLOCKS.md](file:///D:/Caynex/minigames/docs/PROGRESSION_AND_UNLOCKS.md): Terminal shop upgrades, colocation, minigames, and licensing.
+   - [docs/DATA_CATALOG.md](file:///D:/GitRepos/bullimia/docs/DATA_CATALOG.md): Complete index of all 8 asset datasets, 6 historical event epochs, ATR log scaling formulas, and WebSocket/REST schemas.
+   - [docs/GAME_DESIGN_MEMORY.md](file:///D:/GitRepos/bullimia/docs/GAME_DESIGN_MEMORY.md): Deep memory of the 4-phase progression, the Genesis Tutorial ($1K start), Uncle Gordon's 3-trigger wire (+$9K), macro news alert system, and endgame autotrading.
+   - [docs/GRAND_VISION_ROADMAP.md](file:///D:/GitRepos/bullimia/docs/GRAND_VISION_ROADMAP.md): High-level trajectory from Retail Arcade to Sovereign Quant Empire.
+   - [docs/PROGRESSION_AND_UNLOCKS.md](file:///D:/GitRepos/bullimia/docs/PROGRESSION_AND_UNLOCKS.md): Terminal shop upgrades, colocation, minigames, and licensing.
 
 ---
 
 ## 2. 🏛️ SYSTEM MAP & KEY ARTIFACTS
 
 ```
-D:/Caynex/minigames/
+D:/GitRepos/bullimia/
 ├── AGENTS.md                          # Master Agent Working Memory (THIS FILE)
 ├── GEMINI.md                          # Parallel root rule anchor
 ├── docs/

@@ -107,3 +107,8 @@
   4. **Post-$10K Lot Sizing Switcher**: Crossing $10,000 or receiving Uncle Gordon's wire unlocks the HUD Lot Sizing toggle button, allowing seamless switching between `0.01 MICRO` and `1.00 STD` modes.
   5. **Contextual Game Over Screen**: `GameOverModal` dynamically renders `DEAD BROKE` with skull iconography and tutorial retry button when wiped out in early trading, or `MARGIN CALLED` with prop desk liquidation warning when wiped out above $10k.
   6. **Automated Verification**: Expanded test suites to 44 total unit tests (17 Pytest + 27 Vitest, 100% passing). Verified production bundle build (`vite build` in 10.00s) and full Playwright E2E pipeline (`82233b3`).
+- **2026-11-11**: Workspace Migration from `D:/Caynex/minigames` to `D:/GitRepos/bullimia`:
+  1. **Full History & State Preserved**: Synced the complete repository, Git tree, 100% commit history, branch pointers, static assets, screenshots, and test suites from `D:/Caynex/minigames` to `D:/GitRepos/bullimia`.
+  2. **Path Sanitization**: Updated internal documentation and automated scripts (`AGENTS.md`, `GEMINI.md`, `tests/test_e2e_playwright.py`, `loop-demo/data_downloader.py`) to point dynamically to `D:/GitRepos/bullimia`.
+  3. **Verification**: Executed the complete test suite (17 Pytest + 27 Vitest, 44/44 passing) and verified the production Vite build (`vite build` in 13.82s).
+  4. **Clean Legacy Deletion**: Cleared legacy `D:/Caynex/minigames` directory with zero loss of information.

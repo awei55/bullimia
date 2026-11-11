@@ -145,7 +145,7 @@ def fetch_and_format_asset(meta):
     return asset_data
 
 def main():
-    os.makedirs("D:/Caynex/minigames/data", exist_ok=True)
+    os.makedirs("D:/GitRepos/bullimia/data", exist_ok=True)
     catalog = []
     
     for meta in ASSETS_META:
@@ -157,13 +157,13 @@ def main():
                 catalog.append(catalog_item)
                 
                 # Save deep asset dataset
-                with open(f"D:/Caynex/minigames/data/level_{asset['id']}.json", "w") as f:
+                with open(f"D:/GitRepos/bullimia/data/level_{asset['id']}.json", "w") as f:
                     json.dump(asset, f, indent=2)
                 print(f"Saved {asset['id']} with {asset['count']} historical candles ({asset['period_desc']}).")
         except Exception as e:
             print(f"Error fetching {meta['id']}: {e}")
             
-    with open("D:/Caynex/minigames/data/levels_catalog.json", "w") as f:
+    with open("D:/GitRepos/bullimia/data/levels_catalog.json", "w") as f:
         json.dump(catalog, f, indent=2)
     print(f"Successfully generated catalog with {len(catalog)} deep historical assets!")
 

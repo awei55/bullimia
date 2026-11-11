@@ -1,6 +1,6 @@
 # 🤖 BULLIMIA WORKSPACE RULES & AGENT DIRECTIVE
 
-See [AGENTS.md](file:///D:/Caynex/minigames/AGENTS.md) for full working memory and context protocols.
+See [AGENTS.md](file:///D:/GitRepos/bullimia/AGENTS.md) for full working memory and context protocols.
 
 ## Core Mandates
 1. **Always Read `docs/TRACKER.md` First**: Ingest current project status, phase goals, and test pass counts before modifying code.
