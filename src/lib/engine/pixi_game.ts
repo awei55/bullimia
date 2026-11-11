@@ -19,6 +19,7 @@ import {
   chargeProgress,
   isCharging,
   chargedLots,
+  lotMode,
   timeDilation,
   isTradingActive,
   account,
@@ -363,12 +364,17 @@ export class BullimiaPixiEngine {
         if (!get(isTradingActive)) return;
         const duration = (performance.now() - this.chargeStartTime) / 1000;
 
-        // Tap deadzone: Quick taps under 200ms default to clean 1-lot position flips
-        let lots = 1;
+        // Tap deadzone: Quick taps under 200ms default to base lot
+        const currentMode = get(lotMode);
+        let lots = currentMode === 'MICROLOT' ? 0.01 : 1.0;
         if (duration > 0.20) {
           const chargeDuration = duration - 0.20;
-          const ratio = Math.min(1.0, chargeDuration / 2.0); // 2.0s hold to charge from 1 to 100 lots
-          lots = Math.max(1, Math.min(100, Math.floor(1 + Math.pow(ratio, 1.4) * 99)));
+          const ratio = Math.min(1.0, chargeDuration / 2.0); // 2.0s hold to charge to max
+          if (currentMode === 'MICROLOT') {
+            lots = Number((0.01 + Math.pow(ratio, 1.4) * 0.49).toFixed(2));
+          } else {
+            lots = Math.max(1, Math.min(100, Math.floor(1 + Math.pow(ratio, 1.4) * 99)));
+          }
         }
 
         this.flipAndExecute(lots);

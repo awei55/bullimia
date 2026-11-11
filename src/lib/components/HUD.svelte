@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { account, quotes, currentLevel, timeDilation } from '../stores/trading';
+  import { account, quotes, currentLevel, timeDilation, lotMode, toggleLotMode, benefactorState } from '../stores/trading';
   import { soundEngine } from '../audio/soundtrack';
   import { Volume2, VolumeX, History, FastForward, Trophy, Terminal, Settings, Home, LayoutDashboard, Bot, Landmark, Zap } from 'lucide-svelte';
 
@@ -82,15 +82,38 @@
       <div class="flex items-center space-x-1 mt-0.5">
         {#if $account.side === 'BULL'}
           <span class="px-2 py-0.5 text-[10px] pixel-text font-bold bg-bull text-black border border-black shadow-[2px_2px_0_#000] animate-pulse">
-            ▲ LONG {$account.open_lots}L
+            ▲ LONG {$account.open_lots < 1 ? $account.open_lots.toFixed(2) : $account.open_lots}L
           </span>
         {:else if $account.side === 'BEAR'}
           <span class="px-2 py-0.5 text-[10px] pixel-text font-bold bg-bear text-white border border-black shadow-[2px_2px_0_#000] animate-pulse">
-            ▼ SHORT {$account.open_lots}L
+            ▼ SHORT {$account.open_lots < 1 ? $account.open_lots.toFixed(2) : $account.open_lots}L
           </span>
         {:else}
           <span class="px-2 py-0.5 text-[10px] pixel-text font-bold bg-terminal-surface text-neon-cyan border border-black">
             ● FLAT CASH
+          </span>
+        {/if}
+      </div>
+    </div>
+
+    <!-- Lot Sizing Switcher (Microlots vs Standard Lots) -->
+    <div class="pl-3 border-l-2 border-black flex flex-col hidden md:flex">
+      <span class="text-[8px] pixel-text text-terminal-muted">LOT SIZING</span>
+      <div class="mt-0.5">
+        {#if $benefactorState.hasTriggeredWire || $account.equity >= 10000}
+          <button
+            on:click={toggleLotMode}
+            class="px-2 py-0.5 text-[10px] pixel-text font-bold cel-btn transition cursor-pointer {$lotMode === 'MICROLOT' ? 'bg-neon-cyan text-black hover:bg-neon-cyan/80' : 'bg-neon-amber text-black hover:bg-neon-amber/80'}"
+            title="Toggle Lot Sizing: Microlot (0.01) vs Standard Lot (1.00)"
+          >
+            {$lotMode === 'MICROLOT' ? '0.01 MICRO' : '1.00 STD'}
+          </button>
+        {:else}
+          <span
+            class="px-2 py-0.5 text-[10px] pixel-text font-bold bg-terminal-surface text-terminal-muted border border-black"
+            title="Microlot mode locked in Genesis Tutorial until $10k unlock"
+          >
+            🔒 0.01 MICRO
           </span>
         {/if}
       </div>

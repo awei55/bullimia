@@ -1,6 +1,7 @@
 import type { TerminalShopState } from './engine/modifier_pipeline';
 
 export type PositionSide = 'FLAT' | 'BULL' | 'BEAR';
+export type LotMode = 'MICROLOT' | 'STANDARD';
 
 export type GamePhase =
   | 'PHASE_1_CHART'       // Early: $10K - $1M (Rhythm Autoscroller Chart)
@@ -84,6 +85,7 @@ export interface AccountState {
   is_millionaire: boolean;
   high_watermark: number;
   entry_candle_idx?: number;
+  death_reason?: 'DEAD_BROKE' | 'MARGIN_CALL';
 }
 
 export interface TradeRecord {

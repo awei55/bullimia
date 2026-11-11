@@ -44,7 +44,7 @@ kernel = QuantKernel(starting_cash=1000.0)
 class OrderRequest(BaseModel):
     ticker: str
     side: str   # "BULL", "BEAR", "FLAT"
-    lots: int = 1
+    lots: float = 1.0
     current_price: float
     timestamp: str
     atr_pct: float = 0.02
@@ -194,12 +194,15 @@ def inject_benefactor_wire():
     kernel.account.cash_balance += 9000.0
     kernel.account.equity += 9000.0
     kernel.account.free_margin += 9000.0
+    kernel.has_unlocked_margin = True
     return {"status": "ok", "account": kernel.account.to_dict()}
 
 
 @app.post("/api/dev/warp")
 def dev_warp_equity(payload: WarpPayload):
     kernel.set_equity(payload.equity)
+    if payload.equity >= 10000.0:
+        kernel.has_unlocked_margin = True
     return {"status": "ok", "account": kernel.account.to_dict()}
 
 

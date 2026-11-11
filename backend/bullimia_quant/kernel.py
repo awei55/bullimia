@@ -24,7 +24,7 @@ class TradeRecord:
     side: PositionSide
     entry_price: float
     exit_price: float
-    lots: int
+    lots: float
     entry_timestamp: str
     exit_timestamp: str
     pnl: float
@@ -37,7 +37,7 @@ class AccountState:
     cash_balance: float = 10000.0          # Settled cash
     equity: float = 10000.0                # Cash + Unrealized PnL
     side: PositionSide = PositionSide.FLAT
-    open_lots: int = 0
+    open_lots: float = 0.0
     entry_price: float = 0.0
     entry_timestamp: str = ""
     unrealized_pnl: float = 0.0
@@ -51,13 +51,14 @@ class AccountState:
     is_margin_called: bool = False
     is_millionaire: bool = False
     high_watermark: float = 10000.0
+    death_reason: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "cash_balance": round(self.cash_balance, 2),
             "equity": round(self.equity, 2),
             "side": self.side.value,
-            "open_lots": self.open_lots,
+            "open_lots": round(self.open_lots, 2) if self.open_lots < 1.0 else int(self.open_lots),
             "entry_price": round(self.entry_price, 4),
             "entry_timestamp": self.entry_timestamp,
             "unrealized_pnl": round(self.unrealized_pnl, 2),
@@ -72,6 +73,7 @@ class AccountState:
             "is_margin_called": self.is_margin_called,
             "is_millionaire": self.is_millionaire,
             "high_watermark": round(self.high_watermark, 2),
+            "death_reason": self.death_reason,
         }
 
 
@@ -107,6 +109,7 @@ class QuantKernel:
         self.maintenance_margin_rate = maintenance_margin_rate
         self.god_mode: bool = False
         self._custom_multiplier = contract_multiplier != 1.0
+        self.has_unlocked_margin: bool = starting_cash >= 10000.0
 
         self.account = AccountState(
             cash_balance=starting_cash,
@@ -135,7 +138,7 @@ class QuantKernel:
         self.account.cash_balance = float(account_data.get("cash_balance", 1000.0))
         self.account.equity = float(account_data.get("equity", 1000.0))
         self.account.side = side
-        self.account.open_lots = int(account_data.get("open_lots", 0))
+        self.account.open_lots = float(account_data.get("open_lots", 0.0))
         self.account.entry_price = float(account_data.get("entry_price", 0.0))
         self.account.entry_timestamp = str(account_data.get("entry_timestamp", ""))
         self.account.unrealized_pnl = float(account_data.get("unrealized_pnl", 0.0))
@@ -149,6 +152,9 @@ class QuantKernel:
         self.account.high_watermark = float(account_data.get("high_watermark", self.account.equity))
         self.account.is_millionaire = self.account.equity >= 1000000.0
         self.account.is_margin_called = False
+        self.account.death_reason = account_data.get("death_reason")
+        if self.account.equity >= 10000.0 or self.account.high_watermark >= 10000.0:
+            self.has_unlocked_margin = True
 
         if trades:
             self.trade_history.clear()
@@ -224,12 +230,24 @@ class QuantKernel:
         if self.account.equity >= 1000000.0:
             self.account.is_millionaire = True
 
-        # Margin Call Check (suppressed if god_mode is active)
+        if self.account.equity >= 10000.0 or self.account.high_watermark >= 10000.0:
+            self.has_unlocked_margin = True
+
+        # Margin Call / Dead Broke Check (suppressed if god_mode is active)
         if not self.god_mode:
-            if self.account.margin_used > 0 and self.account.equity <= (self.account.margin_used * self.maintenance_margin_rate):
-                self.account.is_margin_called = True
-            elif self.account.equity <= 0:
-                self.account.is_margin_called = True
+            if self.has_unlocked_margin:
+                # Post-$10k: Standard Margin Call active
+                if self.account.equity <= 0:
+                    self.account.is_margin_called = True
+                    self.account.death_reason = "DEAD_BROKE"
+                elif self.account.margin_used > 0 and self.account.equity <= (self.account.margin_used * self.maintenance_margin_rate):
+                    self.account.is_margin_called = True
+                    self.account.death_reason = "MARGIN_CALL"
+            else:
+                # Genesis Tutorial (< $10k): ONLY Dead Broke! Margin calls disabled
+                if self.account.equity <= 0:
+                    self.account.is_margin_called = True
+                    self.account.death_reason = "DEAD_BROKE"
 
         return self.account
 
@@ -237,9 +255,9 @@ class QuantKernel:
         self,
         ticker: str,
         desired_side: PositionSide,
-        lots: int,
-        current_price: float,
-        timestamp: str,
+        lots: float = 1.0,
+        current_price: float = 100.0,
+        timestamp: str = "",
         atr_pct: float = 0.02,
         spread_multiplier: float = 1.0,
         commission_rate: Optional[float] = None
@@ -254,7 +272,7 @@ class QuantKernel:
         effective_commission = self.commission_per_lot if commission_rate is None else commission_rate
         if not self._custom_multiplier and ticker in ASSET_MULTIPLIERS:
             self.contract_multiplier = ASSET_MULTIPLIERS[ticker]
-        lots = max(1, min(100, lots))
+        lots = max(0.01, min(100.0, float(lots)))
         quotes = self.get_quotes(current_price, atr_pct, spread_multiplier)
         bid = quotes["bid"]
         ask = quotes["ask"]
@@ -272,7 +290,7 @@ class QuantKernel:
                 exit_price = ask
                 realized_pnl = (self.account.entry_price - exit_price) * self.account.open_lots * self.contract_multiplier
 
-            close_commission = effective_commission * self.account.open_lots
+            close_commission = max(0.50, effective_commission * self.account.open_lots)
             self.account.cash_balance += (realized_pnl - close_commission)
             self.account.total_commission_paid += close_commission
 
@@ -301,14 +319,14 @@ class QuantKernel:
 
             # Reset open position
             self.account.side = PositionSide.FLAT
-            self.account.open_lots = 0
+            self.account.open_lots = 0.0
             self.account.entry_price = 0.0
             self.account.entry_timestamp = ""
             self.account.unrealized_pnl = 0.0
 
         # 2. Open new position if desired_side is not FLAT
         if desired_side != PositionSide.FLAT:
-            open_commission = effective_commission * lots
+            open_commission = max(0.50, effective_commission * lots)
             self.account.cash_balance -= open_commission
             self.account.total_commission_paid += open_commission
 

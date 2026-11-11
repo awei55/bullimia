@@ -136,6 +136,58 @@ def test_margin_call_trigger():
     kernel.update_mark_to_market(50.0, atr_pct=0.05)
     
     assert kernel.account.is_margin_called is True
+    assert kernel.account.death_reason == "DEAD_BROKE"
+
+
+def test_tutorial_dead_broke_and_suppressed_margin_call():
+    # Genesis Tutorial: $1,000 cash, margin NOT unlocked
+    kernel = QuantKernel(starting_cash=1000.0, margin_rate=0.02, contract_multiplier=1.0)
+    assert not kernel.has_unlocked_margin
+    
+    # Buy 100 lots at $100 -> Commission $100, cash $900. Margin used = 200, maintenance margin = 100
+    kernel.execute_order("NVDA", PositionSide.BULL, 100, 100.0, "2024-01-01")
+    
+    # Adverse movement to $91.6: PnL approx -850 -> Equity approx 50 (< 100 maintenance margin, but > 0)
+    kernel.update_mark_to_market(91.6, atr_pct=0.001)
+    assert kernel.account.equity > 0
+    assert kernel.account.equity < kernel.account.margin_used * 0.5
+    # Crucial: Player is NOT margin called in tutorial because equity > 0
+    assert kernel.account.is_margin_called is False
+    assert kernel.account.death_reason is None
+
+    # Total wipeout: price drops to $80 -> Equity < 0
+    kernel.update_mark_to_market(80.0, atr_pct=0.001)
+    assert kernel.account.equity <= 0
+    assert kernel.account.is_margin_called is True
+    assert kernel.account.death_reason == "DEAD_BROKE"
+
+
+def test_post_10k_margin_call_liquidation():
+    # After crossing $10k or wire, margin is unlocked
+    kernel = QuantKernel(starting_cash=10000.0, margin_rate=0.02, contract_multiplier=1.0)
+    kernel.has_unlocked_margin = True
+    
+    # Buy 100 lots at $100 -> Margin used = 200, maintenance margin = 100
+    kernel.execute_order("NVDA", PositionSide.BULL, 100, 100.0, "2024-01-01")
+    
+    # Adjust cash balance to 1000.0 so drop to 90.5 leaves equity at ~50 (below maintenance margin 100)
+    kernel.account.cash_balance = 1000.0
+    kernel.update_mark_to_market(90.5, atr_pct=0.001)
+    assert kernel.account.equity > 0
+    assert kernel.account.is_margin_called is True
+    assert kernel.account.death_reason == "MARGIN_CALL"
+
+
+def test_microlot_minimum_ticket_commission():
+    kernel = QuantKernel(starting_cash=1000.0, commission_per_lot=1.0, contract_multiplier=1.0)
+    
+    # Execute microlot order of 0.01 lots
+    # 0.01 lots * $1.00 = $0.01, but minimum ticket fee is $0.50
+    res = kernel.execute_order("NVDA", PositionSide.BULL, 0.01, 100.0, "2024-01-01")
+    acc = res["account"]
+    assert acc["total_commission_paid"] == 0.50
+    assert acc["cash_balance"] == 999.50
+    assert acc["open_lots"] == 0.01
 
 
 def test_millionaire_milestone():

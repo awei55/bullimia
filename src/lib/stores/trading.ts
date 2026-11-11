@@ -42,7 +42,23 @@ export const tradeHistory = writable<TradeRecord[]>([]);
 export const timeDilation = writable<number>(1.0);
 export const isCharging = writable<boolean>(false);
 export const chargeProgress = writable<number>(0.0);
-export const chargedLots = derived(chargeProgress, ($p) => Math.max(1, Math.min(100, Math.floor(1 + $p * 99))));
+export const lotMode = writable<LotMode>('MICROLOT');
+export const chargedLots = derived([chargeProgress, lotMode], ([$p, $mode]) => {
+  if ($mode === 'MICROLOT') {
+    return Number((0.01 + Math.pow($p, 1.4) * 0.49).toFixed(2));
+  }
+  return Math.max(1, Math.min(100, Math.floor(1 + Math.pow($p, 1.4) * 99)));
+});
+
+export function toggleLotMode() {
+  const bState = get(benefactorState);
+  const acc = get(account);
+  // Allowed after Uncle Gordon transmission or crossing $10k
+  if (!bState.hasTriggeredWire && acc.high_watermark < 10000) {
+    return;
+  }
+  lotMode.update((m) => (m === 'MICROLOT' ? 'STANDARD' : 'MICROLOT'));
+}
 
 export const benefactorState = writable<BenefactorState>({
   hasTriggeredWire: false,
@@ -232,10 +248,10 @@ function clientSideExecuteOrder(
       const realizedPnl = acc.side === 'BULL'
         ? (exitPrice - acc.entry_price) * acc.open_lots * mult
         : (acc.entry_price - exitPrice) * acc.open_lots * mult;
-      const commission = acc.open_lots * 1.0;
+      const closeComm = Math.max(0.50, acc.open_lots * 1.0);
 
-      acc.cash_balance += (realizedPnl - commission);
-      acc.total_commission_paid += commission;
+      acc.cash_balance += (realizedPnl - closeComm);
+      acc.total_commission_paid += closeComm;
       acc.trade_count += 1;
       const isWin = realizedPnl > 0;
       if (isWin) acc.winning_trades += 1;
@@ -250,8 +266,8 @@ function clientSideExecuteOrder(
         lots: acc.open_lots,
         entry_timestamp: acc.entry_timestamp,
         exit_timestamp: timestamp,
-        pnl: realizedPnl - commission,
-        commission_paid: commission,
+        pnl: realizedPnl - closeComm,
+        commission_paid: closeComm,
         is_win: isWin,
         entry_candle_idx: acc.entry_candle_idx ?? Math.max(0, candleIdx - 15),
         exit_candle_idx: candleIdx,
@@ -265,7 +281,7 @@ function clientSideExecuteOrder(
 
     // Open new position
     if (side !== 'FLAT') {
-      const openComm = lots * 1.0;
+      const openComm = Math.max(0.50, lots * 1.0);
       acc.cash_balance -= openComm;
       acc.total_commission_paid += openComm;
       acc.side = side;
@@ -327,8 +343,24 @@ export function updateMarkToMarket(price: number, atrPct: number = 0.02) {
 
     if (acc.equity > acc.high_watermark) acc.high_watermark = acc.equity;
     if (acc.equity >= 1000000) acc.is_millionaire = true;
-    if (acc.equity <= 0 || (acc.margin_used > 0 && acc.equity <= acc.margin_used * 0.5)) {
-      acc.is_margin_called = true;
+
+    const bState = get(benefactorState);
+    const isPost10k = bState.hasTriggeredWire || acc.high_watermark >= 10000.0;
+
+    if (isPost10k) {
+      if (acc.equity <= 0) {
+        acc.is_margin_called = true;
+        acc.death_reason = 'DEAD_BROKE';
+      } else if (acc.margin_used > 0 && acc.equity <= acc.margin_used * 0.5) {
+        acc.is_margin_called = true;
+        acc.death_reason = 'MARGIN_CALL';
+      }
+    } else {
+      // Genesis Tutorial (< $10k): ONLY Dead Broke! Margin call disabled
+      if (acc.equity <= 0) {
+        acc.is_margin_called = true;
+        acc.death_reason = 'DEAD_BROKE';
+      }
     }
 
     return acc;
