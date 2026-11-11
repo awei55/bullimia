@@ -111,4 +111,4 @@
   1. **Full History & State Preserved**: Synced the complete repository, Git tree, 100% commit history, branch pointers, static assets, screenshots, and test suites from `D:/Caynex/minigames` to `D:/GitRepos/bullimia`.
   2. **Path Sanitization**: Updated internal documentation and automated scripts (`AGENTS.md`, `GEMINI.md`, `tests/test_e2e_playwright.py`, `loop-demo/data_downloader.py`) to point dynamically to `D:/GitRepos/bullimia`.
   3. **Verification**: Executed the complete test suite (17 Pytest + 27 Vitest, 44/44 passing) and verified the production Vite build (`vite build` in 13.82s).
-  4. **Clean Legacy Deletion**: Cleared legacy `D:/Caynex/minigames` directory with zero loss of information.
+  4. **Clean Legacy Deletion**: Cleared legacy `D:/Caynex/minigames` directory with zero loss of information (`f3704b0`).
