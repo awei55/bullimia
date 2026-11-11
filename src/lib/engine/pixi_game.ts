@@ -256,6 +256,12 @@ export class BullimiaPixiEngine {
     this.isDead = false;
     this.deathTimer = 0;
     this.deathVy = 0;
+    this.deathRotSpeed = 0;
+    this.shakeTimer = 0;
+    this.shakeIntensity = 0;
+    this.spaceHeld = false;
+    this.chargeStartTime = 0;
+    chargeProgress.set(0);
     this.bullContainer.rotation = 0;
     this.bearContainer.rotation = 0;
     this.bullContainer.alpha = 1.0;
@@ -276,7 +282,8 @@ export class BullimiaPixiEngine {
   public setLevel(
     level: LevelData,
     startCandleIdx?: number,
-    restoredPosition?: { side: PositionSide; lots: number; entryPrice: number } | null
+    restoredPosition?: { side: PositionSide; lots: number; entryPrice: number } | null,
+    autoStartOrder: boolean = false
   ) {
     this.resetCharacterState();
     this.level = level;
@@ -287,10 +294,10 @@ export class BullimiaPixiEngine {
     const targetIdx =
       startCandleIdx !== undefined && startCandleIdx >= 0 && startCandleIdx < this.candles.length
         ? startCandleIdx
-        : level.start_index;
+        : (level.start_index !== undefined ? level.start_index : 0);
     this.playerProgress = targetIdx;
-    this.initialPrice = level.initial_price;
-    this.currentPrice = this.candles[Math.floor(targetIdx)]?.close || level.initial_price;
+    this.initialPrice = level.initial_price || this.candles[0]?.open || 100.0;
+    this.currentPrice = this.candles[Math.floor(targetIdx)]?.close || this.initialPrice;
 
     if (restoredPosition && restoredPosition.side !== 'FLAT') {
       this.side = restoredPosition.side;
@@ -304,7 +311,7 @@ export class BullimiaPixiEngine {
       this.bearContainer.visible = false;
       this.activeEntryPrice = this.currentPrice;
       this.activeEntryCandleIdx = Math.floor(targetIdx);
-      if (get(isTradingActive)) {
+      if (get(isTradingActive) || autoStartOrder) {
         const candle = this.candles[Math.floor(targetIdx)] || { open: 100, close: 100, high: 100, low: 100, date: '2020-01-01' };
         executeOrder(level.ticker, 'BULL', 1, this.currentPrice, candle.date, this.avgAtrPct, Math.floor(targetIdx));
       }
@@ -479,8 +486,13 @@ export class BullimiaPixiEngine {
     this.currentPrice = c1.close + (c2.open - c1.close) * frac;
     this.playerX = this.playerProgress * this.candleStep;
 
-    const candleTopY = this.priceToScreenY(Math.max(c1.high, c1.close));
-    const candleBottomY = this.priceToScreenY(Math.min(c1.low, c1.close));
+    const top1 = this.priceToScreenY(Math.max(c1.high, c1.close));
+    const top2 = this.priceToScreenY(Math.max(c2.high, c2.close));
+    const candleTopY = top1 + (top2 - top1) * frac;
+
+    const bot1 = this.priceToScreenY(Math.min(c1.low, c1.close));
+    const bot2 = this.priceToScreenY(Math.min(c2.low, c2.close));
+    const candleBottomY = bot1 + (bot2 - bot1) * frac;
 
     const targetY = this.side === 'BULL' ? candleTopY - 24 : candleBottomY + 24;
     this.playerY += (targetY - this.playerY) * 0.16;
@@ -522,15 +534,17 @@ export class BullimiaPixiEngine {
       shakeY = (Math.random() - 0.5) * this.shakeIntensity * decay * 2;
     }
 
-    // Centered Camera Tracking (Character horizontally at 50% screen width!)
+    // Centered Camera Tracking (Character horizontally locked at 50% screen width!)
     const screenW = this.app?.screen.width || 1200;
     const screenH = this.app?.screen.height || 700;
 
     const targetCamX = this.playerX - screenW * 0.5; // Perfectly centered on screen
     const targetCamY = this.playerY - screenH * 0.5;
 
-    this.cameraX += (targetCamX - this.cameraX) * 0.12;
-    this.cameraY += (targetCamY - this.cameraY) * 0.08;
+    // Direct synchronous lock horizontally: completely eliminates start/restart & speed rubberbanding!
+    this.cameraX = targetCamX;
+    // Smooth responsive vertical camera tracking
+    this.cameraY += (targetCamY - this.cameraY) * 0.14;
 
     const charScreenX = this.playerX - this.cameraX + vibX + shakeX;
     const charScreenY = this.playerY - this.cameraY + vibY + shakeY;

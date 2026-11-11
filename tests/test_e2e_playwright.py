@@ -68,7 +68,7 @@ def run_e2e_test():
             print("Canvas active and rendering!")
 
             # Take screenshot immediately to inspect HUD
-            ss_genesis = os.path.join(REPO_DIR, "screenshot_genesis_start.png"
+            ss_genesis = os.path.join(REPO_DIR, "screenshot_genesis_start.png")
             page.screenshot(path=ss_genesis)
             print(f"Captured: {ss_genesis}")
 
@@ -106,7 +106,7 @@ def run_e2e_test():
             page.wait_for_selector("text=UNCLE GORDON", timeout=5000)
             print("Uncle Gordon Benefactor Modal triggered successfully!")
 
-            ss_benefactor = os.path.join(REPO_DIR, "screenshot_benefactor_wire.png"
+            ss_benefactor = os.path.join(REPO_DIR, "screenshot_benefactor_wire.png")
             page.screenshot(path=ss_benefactor)
             print(f"Captured: {ss_benefactor}")
 
@@ -128,7 +128,7 @@ def run_e2e_test():
             page.wait_for_selector("button:has-text('TSLA')", timeout=5000)
             print("Confirmed Asset Switcher is now UNLOCKED with full ticker matrix!")
 
-            ss_unlocked_assets = os.path.join(REPO_DIR, "screenshot_asset_switcher_unlocked.png"
+            ss_unlocked_assets = os.path.join(REPO_DIR, "screenshot_asset_switcher_unlocked.png")
             page.screenshot(path=ss_unlocked_assets)
             print(f"Captured: {ss_unlocked_assets}")
 
@@ -144,7 +144,7 @@ def run_e2e_test():
             page.wait_for_selector("text=MACRO VOLATILITY ALERTS UNLOCKED", timeout=5000)
             print("Flashing Yellow Macro News Alert banner displayed!")
 
-            ss_news = os.path.join(REPO_DIR, "screenshot_macro_news_alert.png"
+            ss_news = os.path.join(REPO_DIR, "screenshot_macro_news_alert.png")
             page.screenshot(path=ss_news)
             print(f"Captured: {ss_news}")
 
@@ -160,7 +160,7 @@ def run_e2e_test():
             page.wait_for_selector("text=INSTITUTIONAL TRADE CONSOLE", timeout=5000)
             print("Phase 2 Trade Console mounted successfully!")
 
-            ss_phase2 = os.path.join(REPO_DIR, "screenshot_phase2_console.png"
+            ss_phase2 = os.path.join(REPO_DIR, "screenshot_phase2_console.png")
             page.screenshot(path=ss_phase2)
             print(f"Captured: {ss_phase2}")
 
@@ -176,7 +176,7 @@ def run_e2e_test():
             page.wait_for_selector("text=AUTONOMOUS QUANTITATIVE BOTS", timeout=5000)
             print("Phase 3 Bot Studio mounted successfully!")
 
-            ss_phase3 = os.path.join(REPO_DIR, "screenshot_phase3_bot_studio.png"
+            ss_phase3 = os.path.join(REPO_DIR, "screenshot_phase3_bot_studio.png")
             page.screenshot(path=ss_phase3)
             print(f"Captured: {ss_phase3}")
 
@@ -192,7 +192,7 @@ def run_e2e_test():
             page.wait_for_selector("text=MACRO CAPITAL & SOVEREIGN DESK", timeout=5000)
             print("Phase 4 Portfolio Manager mounted successfully!")
 
-            ss_phase4 = os.path.join(REPO_DIR, "screenshot_phase4_portfolio.png"
+            ss_phase4 = os.path.join(REPO_DIR, "screenshot_phase4_portfolio.png")
             page.screenshot(path=ss_phase4)
             print(f"Captured: {ss_phase4}")
 
@@ -202,7 +202,7 @@ def run_e2e_test():
             time.sleep(1)
 
             page.wait_for_selector("text=ACTIVE CAREER DETECTED", timeout=5000)
-            ss_save = os.path.join(REPO_DIR, "screenshot_start_screen_with_save.png"
+            ss_save = os.path.join(REPO_DIR, "screenshot_start_screen_with_save.png")
             page.screenshot(path=ss_save)
             print(f"Captured: {ss_save}")
 
@@ -212,7 +212,7 @@ def run_e2e_test():
             time.sleep(1)
 
             # Debug screenshot after clicking Resume Career
-            ss_after_resume = os.path.join(REPO_DIR, "screenshot_after_resume.png"
+            ss_after_resume = os.path.join(REPO_DIR, "screenshot_after_resume.png")
             page.screenshot(path=ss_after_resume)
             print(f"Captured after resume: {ss_after_resume}")
 
@@ -232,7 +232,7 @@ def run_e2e_test():
             # Wait for GameOverModal ("MARGIN CALLED")
             page.wait_for_selector("text=MARGIN CALLED", timeout=5000)
             print("GameOverModal displayed upon liquidation!")
-            ss_gameover = os.path.join(REPO_DIR, "screenshot_gameover_modal.png"
+            ss_gameover = os.path.join(REPO_DIR, "screenshot_gameover_modal.png")
             page.screenshot(path=ss_gameover)
             print(f"Captured: {ss_gameover}")
 

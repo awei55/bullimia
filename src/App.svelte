@@ -128,22 +128,24 @@
   });
 
   async function handleStartNewCareer() {
+    isTradingActive.set(false);
     await SaveManager.deleteCareer();
     await resetCareer(1000.0); // Genesis Tutorial starts with $1,000 USD
     terminalShopState.set(initialTerminalShopState);
     elapsedTradingSeconds = 0;
     activeView = 'CHART';
     inStartMenu = false;
-    isTradingActive.set(true);
 
     if (engine) {
       engine.resetCharacterState();
       const data = await loadLevel('NVDA', false);
-      engine.setLevel(data);
+      engine.setLevel(data, 0, null, true);
     }
+    isTradingActive.set(true);
   }
 
   async function handleResumeCareer(save: SaveState) {
+    isTradingActive.set(false);
     account.set(save.account);
     tradeHistory.set(save.tradeHistory || []);
     crtEnabled = save.settings?.crtEnabled ?? true;
@@ -174,13 +176,13 @@
     }
 
     inStartMenu = false;
-    isTradingActive.set(true);
 
     if (engine) {
       const levelId = save.currentLevelId || 'NVDA';
       const levelData = await loadLevel(levelId, false);
       engine.setLevel(levelData, save.playerProgress, save.openPosition);
     }
+    isTradingActive.set(true);
   }
 
   async function triggerSave() {
