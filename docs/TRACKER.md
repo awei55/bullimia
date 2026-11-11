@@ -106,4 +106,4 @@
   3. **High Retail Comparative Commissions**: Implemented a retail binary options / retail broker fee curve: a minimum ticket commission of $0.50 per trade (`max(0.50, lots * commission_rate)`), penalizing reckless overtrading while keeping risk controlled.
   4. **Post-$10K Lot Sizing Switcher**: Crossing $10,000 or receiving Uncle Gordon's wire unlocks the HUD Lot Sizing toggle button, allowing seamless switching between `0.01 MICRO` and `1.00 STD` modes.
   5. **Contextual Game Over Screen**: `GameOverModal` dynamically renders `DEAD BROKE` with skull iconography and tutorial retry button when wiped out in early trading, or `MARGIN CALLED` with prop desk liquidation warning when wiped out above $10k.
-  6. **Automated Verification**: Expanded test suites to 44 total unit tests (17 Pytest + 27 Vitest, 100% passing). Verified production bundle build (`vite build` in 10.00s) and full Playwright E2E pipeline.
+  6. **Automated Verification**: Expanded test suites to 44 total unit tests (17 Pytest + 27 Vitest, 100% passing). Verified production bundle build (`vite build` in 10.00s) and full Playwright E2E pipeline (`82233b3`).
