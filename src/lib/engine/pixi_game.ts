@@ -74,6 +74,9 @@ export class BullimiaPixiEngine {
   private bearBodyGfx: PIXI.Graphics = new PIXI.Graphics();
   private orderBadgeGfx: PIXI.Graphics = new PIXI.Graphics();
   private livePnlBadgeGfx: PIXI.Graphics = new PIXI.Graphics();
+  private livePnlText: PIXI.Text | null = null;
+  private boundKeydown: ((e: KeyboardEvent) => void) | null = null;
+  private boundKeyup: ((e: KeyboardEvent) => void) | null = null;
 
   // Simulation State
   private level: LevelData | null = null;
@@ -200,6 +203,18 @@ export class BullimiaPixiEngine {
     this.characterLayer.addChild(this.orderBadgeGfx);
     this.characterLayer.addChild(this.livePnlBadgeGfx);
 
+    this.livePnlText = new PIXI.Text({
+      text: '',
+      style: {
+        fontFamily: 'Chakra Petch, monospace, sans-serif',
+        fontSize: 10,
+        fontWeight: 'bold',
+        fill: 0x00f59b,
+      },
+    });
+    this.livePnlText.visible = false;
+    this.characterLayer.addChild(this.livePnlText);
+
     this.bearContainer.visible = false;
 
     this.setupInputListeners();
@@ -324,7 +339,7 @@ export class BullimiaPixiEngine {
   }
 
   private setupInputListeners() {
-    window.addEventListener('keydown', (e) => {
+    this.boundKeydown = (e: KeyboardEvent) => {
       if (['input', 'textarea'].includes((document.activeElement?.tagName || '').toLowerCase())) return;
       if (e.code === 'Space' && !e.repeat) {
         if (!get(isTradingActive)) return;
@@ -340,15 +355,21 @@ export class BullimiaPixiEngine {
         isCharging.set(false);
         chargeProgress.set(0.0);
       }
-    });
+    };
 
-    window.addEventListener('keyup', (e) => {
+    this.boundKeyup = (e: KeyboardEvent) => {
       if (['input', 'textarea'].includes((document.activeElement?.tagName || '').toLowerCase())) return;
       if (e.code === 'Space' && this.spaceHeld) {
         if (!get(isTradingActive)) return;
         const duration = (performance.now() - this.chargeStartTime) / 1000;
-        const ratio = Math.min(1.0, duration / 2.5);
-        const lots = Math.max(1, Math.min(100, Math.floor(1 + ratio * 99)));
+
+        // Tap deadzone: Quick taps under 200ms default to clean 1-lot position flips
+        let lots = 1;
+        if (duration > 0.20) {
+          const chargeDuration = duration - 0.20;
+          const ratio = Math.min(1.0, chargeDuration / 2.0); // 2.0s hold to charge from 1 to 100 lots
+          lots = Math.max(1, Math.min(100, Math.floor(1 + Math.pow(ratio, 1.4) * 99)));
+        }
 
         this.flipAndExecute(lots);
 
@@ -356,7 +377,10 @@ export class BullimiaPixiEngine {
         isCharging.set(false);
         chargeProgress.set(0.0);
       }
-    });
+    };
+
+    window.addEventListener('keydown', this.boundKeydown);
+    window.addEventListener('keyup', this.boundKeyup);
   }
 
   public flattenToCash() {
@@ -460,22 +484,25 @@ export class BullimiaPixiEngine {
     let vibY = 0;
     if (this.spaceHeld) {
       const duration = (performance.now() - this.chargeStartTime) / 1000;
-      const progress = Math.min(1.0, duration / 2.5);
+      const progress = duration > 0.20 ? Math.min(1.0, (duration - 0.20) / 2.0) : 0.0;
       chargeProgress.set(progress);
-      soundEngine.playVibrateCharge(progress);
 
-      const amp = 4.0 + progress * 16.0;
-      vibX = (Math.random() - 0.5) * amp;
-      vibY = (Math.random() - 0.5) * amp;
+      if (progress > 0) {
+        soundEngine.playVibrateCharge(progress);
 
-      // Charge sparks leaping off character
-      if (Math.random() < 0.7) {
-        const sparkCol = this.side === 'BULL' ? 0x00e5ff : 0xff0055;
-        this.spawnSparks(this.playerX + (Math.random() * 24 - 12), this.playerY + (Math.random() * 24 - 12), sparkCol, 2);
-      }
+        const amp = 4.0 + progress * 16.0;
+        vibX = (Math.random() - 0.5) * amp;
+        vibY = (Math.random() - 0.5) * amp;
 
-      if (Math.random() < 0.35) {
-        this.spawnSteam(this.playerX + 20, this.playerY, 1);
+        // Charge sparks leaping off character
+        if (Math.random() < 0.7) {
+          const sparkCol = this.side === 'BULL' ? 0x00e5ff : 0xff0055;
+          this.spawnSparks(this.playerX + (Math.random() * 24 - 12), this.playerY + (Math.random() * 24 - 12), sparkCol, 2);
+        }
+
+        if (Math.random() < 0.35) {
+          this.spawnSteam(this.playerX + 20, this.playerY, 1);
+        }
       }
     }
 
@@ -512,17 +539,11 @@ export class BullimiaPixiEngine {
     // Clear order badge gfx to guarantee no rogue lines to (0,0)
     this.orderBadgeGfx.clear();
 
-    // Live Position PnL Badge near character
-    this.drawLivePositionPnl(charScreenX, charScreenY);
+    // Real-time instantaneous 60 FPS mark-to-market calculation (0ms latency, zero desync)
+    updateMarkToMarket(this.currentPrice, this.avgAtrPct);
 
-    // Live Position PnL Badge near character
+    // Live Position PnL Badge near character (rendered AFTER mark-to-market so it is 100% current)
     this.drawLivePositionPnl(charScreenX, charScreenY);
-
-    // Periodic Mark-to-market
-    if (currentIdx !== this.lastExecutedCandleIdx) {
-      this.lastExecutedCandleIdx = currentIdx;
-      updateMarkToMarket(this.currentPrice, this.avgAtrPct);
-    }
 
     // Update Particles
     this.updateParticles(dt);
@@ -682,10 +703,16 @@ export class BullimiaPixiEngine {
     this.livePnlBadgeGfx.clear();
     this.activeTradeLineLayer.clear();
 
-    if (this.side === 'FLAT' || this.isDead || !this.activeEntryPrice || this.activeEntryPrice <= 0 || this.activeEntryCandleIdx === undefined) return;
+    if (this.side === 'FLAT' || this.isDead || !this.activeEntryPrice || this.activeEntryPrice <= 0 || this.activeEntryCandleIdx === undefined) {
+      if (this.livePnlText) this.livePnlText.visible = false;
+      return;
+    }
 
     const acc = get(account);
-    if (!acc || acc.side === 'FLAT' || acc.open_lots === 0) return;
+    if (!acc || acc.side === 'FLAT' || acc.open_lots === 0) {
+      if (this.livePnlText) this.livePnlText.visible = false;
+      return;
+    }
 
     const pnl = acc.unrealized_pnl;
     const isProfit = pnl >= 0;
@@ -711,13 +738,24 @@ export class BullimiaPixiEngine {
     const badgeY = charY - 12;
 
     const g = this.livePnlBadgeGfx;
-    g.roundRect(badgeX, badgeY, 82, 24, 6);
+    g.roundRect(badgeX, badgeY, 86, 24, 6);
     g.fill({ color: 0x080d1a, alpha: 0.95 });
     g.stroke({ color: col, width: 2 });
 
     // Side badge indicator dot
     g.circle(badgeX + 10, badgeY + 12, 4);
     g.fill({ color: col });
+
+    // Live PnL formatted text directly on character badge
+    if (this.livePnlText) {
+      const sign = pnl >= 0 ? '+' : '-';
+      const absVal = Math.abs(pnl);
+      const textVal = `${sign}$${absVal >= 1000 ? absVal.toFixed(0) : absVal.toFixed(2)}`;
+      this.livePnlText.text = textVal;
+      this.livePnlText.style.fill = col;
+      this.livePnlText.position.set(badgeX + 18, badgeY + 4);
+      this.livePnlText.visible = true;
+    }
   }
 
   // --- Multi-Layer Parallax Background & Skyline ---
@@ -1099,9 +1137,21 @@ export class BullimiaPixiEngine {
   }
 
   public destroy() {
+    if (this.boundKeydown) {
+      window.removeEventListener('keydown', this.boundKeydown);
+      this.boundKeydown = null;
+    }
+    if (this.boundKeyup) {
+      window.removeEventListener('keyup', this.boundKeyup);
+      this.boundKeyup = null;
+    }
     if (this.accountUnsub) {
       this.accountUnsub();
       this.accountUnsub = null;
+    }
+    if (this.livePnlText) {
+      this.livePnlText.destroy();
+      this.livePnlText = null;
     }
     if (this.app) {
       this.app.destroy(true, { children: true, texture: true });

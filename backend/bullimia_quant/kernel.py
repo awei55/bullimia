@@ -75,6 +75,19 @@ class AccountState:
         }
 
 
+ASSET_MULTIPLIERS: Dict[str, float] = {
+    "NVDA": 1.0,
+    "AAPL": 1.0,
+    "AMD": 1.0,
+    "TSLA": 1.0,
+    "GME": 1.0,
+    "SPY": 2.0,
+    "QQQ": 1.5,
+    "BTC-USD": 0.1,
+    "BTC_2021": 0.1,
+}
+
+
 class QuantKernel:
     """
     Deterministic Financial Kernel managing multi-asset execution, mark-to-market,
@@ -85,7 +98,7 @@ class QuantKernel:
         starting_cash: float = 1000.0,
         commission_per_lot: float = 1.0,
         margin_rate: float = 0.02,           # 2% margin = 50:1 leverage
-        contract_multiplier: float = 10.0,    # $10 per point per lot (or calibrated per asset)
+        contract_multiplier: float = 1.0,    # 1.0 for equities ($1/pt/lot), calibrated per asset
         maintenance_margin_rate: float = 0.5 # Margin call at 50% maintenance margin
     ):
         self.commission_per_lot = commission_per_lot
@@ -93,6 +106,7 @@ class QuantKernel:
         self.contract_multiplier = contract_multiplier
         self.maintenance_margin_rate = maintenance_margin_rate
         self.god_mode: bool = False
+        self._custom_multiplier = contract_multiplier != 1.0
 
         self.account = AccountState(
             cash_balance=starting_cash,
@@ -238,6 +252,8 @@ class QuantKernel:
         - If desired_side is FLAT: closes existing position and stays in cash (SPACE + ESC).
         """
         effective_commission = self.commission_per_lot if commission_rate is None else commission_rate
+        if not self._custom_multiplier and ticker in ASSET_MULTIPLIERS:
+            self.contract_multiplier = ASSET_MULTIPLIERS[ticker]
         lots = max(1, min(100, lots))
         quotes = self.get_quotes(current_price, atr_pct, spread_multiplier)
         bid = quotes["bid"]

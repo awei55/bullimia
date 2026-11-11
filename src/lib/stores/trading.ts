@@ -149,6 +149,7 @@ export async function loadLevel(levelId: string, randomEpoch: boolean = false): 
   const logScale = rawData.log_scale || Math.round(48.0 / avgAtrPct);
   const initialPrice = candles[startIdx]?.open || 100.0;
   const startDate = candles[startIdx]?.date || '2020-01-01';
+  const multiplier = rawData.multiplier !== undefined ? Number(rawData.multiplier) : 1.0;
 
   const level: LevelData = {
     id: rawData.id || levelId,
@@ -162,6 +163,7 @@ export async function loadLevel(levelId: string, randomEpoch: boolean = false): 
     log_scale: logScale,
     initial_price: initialPrice,
     start_date: startDate,
+    multiplier,
   };
 
   currentLevel.set(level);
@@ -175,7 +177,7 @@ export async function loadLevel(levelId: string, randomEpoch: boolean = false): 
   return level;
 }
 
-export async function executeOrder(
+export function executeOrder(
   ticker: string,
   side: PositionSide,
   lots: number,
@@ -184,26 +186,12 @@ export async function executeOrder(
   atrPct: number = 0.02,
   candleIdx: number = 0
 ) {
-  // If WS is available, send via WS
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({
-      action: 'order',
-      ticker,
-      side,
-      lots,
-      price,
-      timestamp,
-      atr_pct: atrPct,
-      candle_idx: candleIdx,
-    }));
-    soundEngine.playOrderExecuted(side, lots);
-    return;
-  }
+  // 1. Execute immediately and synchronously on client side (0ms latency, zero desync)
+  clientSideExecuteOrder(ticker, side, lots, price, timestamp, atrPct, candleIdx);
 
-  // Try HTTP Backend
-  let handledOnBackend = false;
-  try {
-    const res = await fetch('/api/order', {
+  // 2. Non-blocking asynchronous sync with backend if available
+  if (typeof window !== 'undefined') {
+    fetch('/api/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -215,34 +203,7 @@ export async function executeOrder(
         atr_pct: atrPct,
         candle_idx: candleIdx,
       }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      account.set(data.account);
-      if (data.quotes) quotes.set(data.quotes);
-      if (data.closed_trade) {
-        // Ensure candle indices are set for MT5 lines
-        const enrichedTrade = {
-          ...data.closed_trade,
-          entry_candle_idx: data.closed_trade.entry_candle_idx ?? get(account).entry_candle_idx ?? Math.max(0, candleIdx - 10),
-          exit_candle_idx: data.closed_trade.exit_candle_idx ?? candleIdx,
-        };
-        tradeHistory.update((h) => [...h, enrichedTrade]);
-        if (data.closed_trade.is_win) {
-          soundEngine.playWin(data.closed_trade.pnl);
-        } else {
-          soundEngine.playLoss(data.closed_trade.pnl);
-        }
-      } else {
-        soundEngine.playOrderExecuted(side, lots);
-      }
-      handledOnBackend = true;
-    }
-  } catch (e) {}
-
-  // Deterministic Client-Side Fallback if backend is offline
-  if (!handledOnBackend) {
-    clientSideExecuteOrder(ticker, side, lots, price, timestamp, atrPct, candleIdx);
+    }).catch(() => {});
   }
 }
 
@@ -255,18 +216,22 @@ function clientSideExecuteOrder(
   atrPct: number,
   candleIdx: number = 0
 ) {
+  const mult = get(currentLevel)?.multiplier ?? 1.0;
+
   account.update((acc) => {
-    const spread = price * (atrPct * 0.05);
-    const bid = price - spread / 2;
-    const ask = price + spread / 2;
+    const spreadPct = Math.max(0.0005, Math.min(0.005, atrPct * 0.05));
+    const spread = price * spreadPct;
+    const halfSpread = spread / 2.0;
+    const bid = price - halfSpread;
+    const ask = price + halfSpread;
 
     // Close previous position if active
     let closedTrade: TradeRecord | null = null;
     if (acc.side !== 'FLAT' && acc.open_lots > 0) {
       const exitPrice = acc.side === 'BULL' ? bid : ask;
       const realizedPnl = acc.side === 'BULL'
-        ? (exitPrice - acc.entry_price) * acc.open_lots * 10
-        : (acc.entry_price - exitPrice) * acc.open_lots * 10;
+        ? (exitPrice - acc.entry_price) * acc.open_lots * mult
+        : (acc.entry_price - exitPrice) * acc.open_lots * mult;
       const commission = acc.open_lots * 1.0;
 
       acc.cash_balance += (realizedPnl - commission);
@@ -316,73 +281,61 @@ function clientSideExecuteOrder(
       acc.entry_candle_idx = undefined;
     }
 
-    acc.win_rate_pct = acc.trade_count > 0 ? Number((acc.winning_trades / acc.trade_count * 100).toFixed(1)) : 0;
+    acc.win_rate_pct = acc.trade_count > 0 ? Number(((acc.winning_trades / acc.trade_count) * 100).toFixed(1)) : 0;
     return acc;
   });
 
   updateMarkToMarket(price, atrPct);
 }
 
-export async function updateMarkToMarket(price: number, atrPct: number = 0.02) {
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ action: 'mark_to_market', price, atr_pct: atrPct }));
-    return;
-  }
+export function updateMarkToMarket(price: number, atrPct: number = 0.02) {
+  const mult = get(currentLevel)?.multiplier ?? 1.0;
 
-  // Try HTTP backend
-  let handled = false;
-  try {
-    const res = await fetch('/api/mark-to-market', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ current_price: price, atr_pct: atrPct }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      account.set(data.account);
-      if (data.quotes) quotes.set(data.quotes);
-      handled = true;
+  const spreadPct = Math.max(0.0005, Math.min(0.005, atrPct * 0.05));
+  const spread = price * spreadPct;
+  const halfSpread = spread / 2.0;
+  const bid = price - halfSpread;
+  const ask = price + halfSpread;
+
+  quotes.set({
+    price: Number(price.toFixed(2)),
+    bid: Number(bid.toFixed(2)),
+    ask: Number(ask.toFixed(2)),
+    spread: Number(spread.toFixed(2)),
+  });
+
+  account.update((acc) => {
+    if (acc.side === 'FLAT' || acc.open_lots === 0) {
+      acc.unrealized_pnl = 0;
+      acc.equity = acc.cash_balance;
+      acc.margin_used = 0;
+      acc.free_margin = acc.cash_balance;
+      acc.margin_level_pct = 999.0;
+    } else if (acc.side === 'BULL') {
+      acc.unrealized_pnl = (bid - acc.entry_price) * acc.open_lots * mult;
+      acc.equity = acc.cash_balance + acc.unrealized_pnl;
+      acc.margin_used = acc.open_lots * acc.entry_price * mult * 0.02;
+      acc.free_margin = acc.equity - acc.margin_used;
+      acc.margin_level_pct = acc.margin_used > 0 ? (acc.equity / acc.margin_used) * 100.0 : 999.0;
+    } else if (acc.side === 'BEAR') {
+      acc.unrealized_pnl = (acc.entry_price - ask) * acc.open_lots * mult;
+      acc.equity = acc.cash_balance + acc.unrealized_pnl;
+      acc.margin_used = acc.open_lots * acc.entry_price * mult * 0.02;
+      acc.free_margin = acc.equity - acc.margin_used;
+      acc.margin_level_pct = acc.margin_used > 0 ? (acc.equity / acc.margin_used) * 100.0 : 999.0;
     }
-  } catch (e) {}
 
-  // Deterministic Client-side calculation
-  if (!handled) {
-    account.update((acc) => {
-      const spread = price * (atrPct * 0.05);
-      const bid = price - spread / 2;
-      const ask = price + spread / 2;
+    if (acc.equity > acc.high_watermark) acc.high_watermark = acc.equity;
+    if (acc.equity >= 1000000) acc.is_millionaire = true;
+    if (acc.equity <= 0 || (acc.margin_used > 0 && acc.equity <= acc.margin_used * 0.5)) {
+      acc.is_margin_called = true;
+    }
 
-      quotes.set({
-        price: Number(price.toFixed(2)),
-        bid: Number(bid.toFixed(2)),
-        ask: Number(ask.toFixed(2)),
-        spread: Number(spread.toFixed(2)),
-      });
+    return acc;
+  });
 
-      if (acc.side === 'FLAT' || acc.open_lots === 0) {
-        acc.unrealized_pnl = 0;
-        acc.equity = acc.cash_balance;
-        acc.margin_used = 0;
-        acc.free_margin = acc.cash_balance;
-      } else if (acc.side === 'BULL') {
-        acc.unrealized_pnl = (bid - acc.entry_price) * acc.open_lots * 10;
-        acc.equity = acc.cash_balance + acc.unrealized_pnl;
-        acc.margin_used = acc.open_lots * acc.entry_price * 10 * 0.02;
-        acc.free_margin = acc.equity - acc.margin_used;
-      } else if (acc.side === 'BEAR') {
-        acc.unrealized_pnl = (acc.entry_price - ask) * acc.open_lots * 10;
-        acc.equity = acc.cash_balance + acc.unrealized_pnl;
-        acc.margin_used = acc.open_lots * acc.entry_price * 10 * 0.02;
-        acc.free_margin = acc.equity - acc.margin_used;
-      }
-
-      if (acc.equity > acc.high_watermark) acc.high_watermark = acc.equity;
-      if (acc.equity >= 1000000) acc.is_millionaire = true;
-      if (acc.equity <= 0) acc.is_margin_called = true;
-
-      return acc;
-    });
-  }
+  const acc = get(account);
+  soundEngine.updateTelemetry(acc.unrealized_pnl, acc.open_lots, acc.margin_level_pct < 100);
 
   // Check Benefactor Wire Triggers ($1,000 -> $10,000)
   checkBenefactorTriggers();

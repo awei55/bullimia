@@ -54,6 +54,7 @@ export interface LevelData {
   log_scale: number;
   initial_price: number;
   start_date: string;
+  multiplier?: number;
 }
 
 export interface Quotes {
