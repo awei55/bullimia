@@ -25,6 +25,8 @@ export interface SaveState {
   } | null;
   tradeHistory: TradeRecord[];
   shopState?: TerminalShopState;
+  botsState?: any;
+  portfolioState?: any;
   settings: {
     crtEnabled: boolean;
     masterVolume: number;
@@ -86,6 +88,10 @@ export interface AccountState {
   high_watermark: number;
   entry_candle_idx?: number;
   death_reason?: 'DEAD_BROKE' | 'MARGIN_CALL';
+  isInRestructuring?: boolean;
+  restructuringDebt?: number;
+  debtInterestRate?: number;
+  restructuringBreachCount?: number;
 }
 
 export interface TradeRecord {

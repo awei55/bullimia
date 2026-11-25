@@ -10,6 +10,7 @@
   import BenefactorModal from './lib/components/BenefactorModal.svelte';
   import NewsAlertBanner from './lib/components/NewsAlertBanner.svelte';
   import IBMinigameModal from './lib/components/IBMinigameModal.svelte';
+  import CreditorRestructuringModal from './lib/components/CreditorRestructuringModal.svelte';
 
   import TradeConsoleView from './lib/views/TradeConsoleView.svelte';
   import BotStudioView from './lib/views/BotStudioView.svelte';
@@ -30,6 +31,8 @@
     timeDilation,
   } from './lib/stores/trading';
   import { terminalShopState } from './lib/stores/terminal_shop';
+  import { botStudioState } from './lib/stores/bot_studio';
+  import { sovereignPortfolioState } from './lib/stores/portfolio';
   import { triggerRandomOpportunity } from './lib/stores/minigame';
   import { initialTerminalShopState } from './lib/engine/modifier_pipeline';
   import { soundEngine } from './lib/audio/soundtrack';
@@ -152,6 +155,12 @@
     if (save.shopState) {
       terminalShopState.set(save.shopState);
     }
+    if (save.botsState) {
+      botStudioState.set(save.botsState);
+    }
+    if (save.portfolioState) {
+      sovereignPortfolioState.set(save.portfolioState);
+    }
 
     // Check if wire was previously unlocked
     if (save.account.equity >= 10000.0) {
@@ -207,6 +216,8 @@
       openPosition,
       tradeHistory: $tradeHistory,
       shopState: $terminalShopState,
+      botsState: $botStudioState,
+      portfolioState: $sovereignPortfolioState,
       settings: { crtEnabled },
     });
   }
@@ -379,6 +390,7 @@
   {#if !inStartMenu && $isTradingActive}
     <BenefactorModal />
     <IBMinigameModal />
+    <CreditorRestructuringModal />
   {/if}
 
   <OptionsModal

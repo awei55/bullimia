@@ -123,7 +123,7 @@
   <!-- Center: Financial Telemetry & Phase Switchers -->
   <div class="flex items-center space-x-6">
     <!-- View Switcher Tabs (Unlocked at $1M+) -->
-    {#if $account.equity >= 1000000}
+    {#if $account.high_watermark >= 1000000 || $account.equity >= 1000000}
       <div class="flex items-center space-x-1 bg-black p-1 border-2 border-black cyber-clip-sm">
         <button
           on:click={() => onChangeView('CHART')}
@@ -139,7 +139,7 @@
           PROP DESK
         </button>
 
-        {#if $account.equity >= 10000000}
+        {#if $account.high_watermark >= 10000000 || $account.equity >= 10000000}
           <button
             on:click={() => onChangeView('BOTS')}
             class="px-2.5 py-1 text-[10px] pixel-text font-bold transition {activeView === 'BOTS' ? 'bg-neon-amber text-black' : 'text-terminal-muted hover:text-white'}"
@@ -148,7 +148,7 @@
           </button>
         {/if}
 
-        {#if $account.equity >= 100000000}
+        {#if $account.high_watermark >= 100000000 || $account.equity >= 100000000}
           <button
             on:click={() => onChangeView('PORTFOLIO')}
             class="px-2.5 py-1 text-[10px] pixel-text font-bold transition {activeView === 'PORTFOLIO' ? 'bg-neon-cyan text-black' : 'text-terminal-muted hover:text-white'}"

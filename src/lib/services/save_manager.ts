@@ -38,6 +38,8 @@ export class SaveManager {
     } | null;
     tradeHistory: TradeRecord[];
     shopState?: TerminalShopState;
+    botsState?: any;
+    portfolioState?: any;
     settings?: {
       crtEnabled?: boolean;
       masterVolume?: number;
@@ -56,6 +58,8 @@ export class SaveManager {
       openPosition: state.openPosition,
       tradeHistory: state.tradeHistory,
       shopState: state.shopState,
+      botsState: state.botsState,
+      portfolioState: state.portfolioState,
       settings: {
         crtEnabled: state.settings?.crtEnabled ?? true,
         masterVolume: state.settings?.masterVolume ?? 0.7,

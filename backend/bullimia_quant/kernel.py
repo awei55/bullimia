@@ -52,6 +52,10 @@ class AccountState:
     is_millionaire: bool = False
     high_watermark: float = 10000.0
     death_reason: Optional[str] = None
+    is_in_restructuring: bool = False
+    restructuring_debt: float = 0.0
+    debt_interest_rate_pct: float = 11.75
+    restructuring_breach_count: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -74,6 +78,10 @@ class AccountState:
             "is_millionaire": self.is_millionaire,
             "high_watermark": round(self.high_watermark, 2),
             "death_reason": self.death_reason,
+            "is_in_restructuring": self.is_in_restructuring,
+            "restructuring_debt": round(self.restructuring_debt, 2),
+            "debt_interest_rate_pct": round(self.debt_interest_rate_pct, 2),
+            "restructuring_breach_count": self.restructuring_breach_count,
         }
 
 
@@ -153,6 +161,10 @@ class QuantKernel:
         self.account.is_millionaire = self.account.equity >= 1000000.0
         self.account.is_margin_called = False
         self.account.death_reason = account_data.get("death_reason")
+        self.account.is_in_restructuring = bool(account_data.get("is_in_restructuring", False))
+        self.account.restructuring_debt = float(account_data.get("restructuring_debt", 0.0))
+        self.account.debt_interest_rate_pct = float(account_data.get("debt_interest_rate_pct", 11.75))
+        self.account.restructuring_breach_count = int(account_data.get("restructuring_breach_count", 0))
         if self.account.equity >= 10000.0 or self.account.high_watermark >= 10000.0:
             self.has_unlocked_margin = True
 
@@ -233,9 +245,23 @@ class QuantKernel:
         if self.account.equity >= 10000.0 or self.account.high_watermark >= 10000.0:
             self.has_unlocked_margin = True
 
-        # Margin Call / Dead Broke Check (suppressed if god_mode is active)
+        # Margin Call / Solvency Check (suppressed if god_mode is active)
         if not self.god_mode:
-            if self.has_unlocked_margin:
+            # Phase 4 ($100M+): Sovereign Too Big To Fail -> Zero margin calls permanently
+            if self.account.high_watermark >= 100000000.0 or self.account.equity >= 100000000.0:
+                self.account.is_margin_called = False
+                self.account.death_reason = None
+            # Phase 3 ($10M - $100M): Creditor Restructuring with rescue capital
+            elif self.account.high_watermark >= 10000000.0 or self.account.equity >= 10000000.0 or self.account.is_in_restructuring:
+                is_breach = False
+                if self.account.equity <= 0:
+                    is_breach = True
+                elif self.account.margin_used > 0 and self.account.equity <= (self.account.margin_used * self.maintenance_margin_rate):
+                    is_breach = True
+
+                if is_breach:
+                    self.trigger_creditor_restructuring(rescue_capital=5000000.0)
+            elif self.has_unlocked_margin:
                 # Post-$10k: Standard Margin Call active
                 if self.account.equity <= 0:
                     self.account.is_margin_called = True
@@ -250,6 +276,43 @@ class QuantKernel:
                     self.account.death_reason = "DEAD_BROKE"
 
         return self.account
+
+    def trigger_creditor_restructuring(self, rescue_capital: float = 5000000.0):
+        """Chapter 11 Creditor Restructuring for funds >= $10M."""
+        self.account.is_in_restructuring = True
+        self.account.restructuring_breach_count += 1
+        penalty_markup = 1.10  # 10% senior restructuring fee
+        debt_addition = rescue_capital * penalty_markup
+        self.account.restructuring_debt += debt_addition
+        # Base: SOFR (5.25%) + 650 bps (6.5%) = 11.75% + 3.0% per additional breach
+        self.account.debt_interest_rate_pct = 11.75 + (self.account.restructuring_breach_count - 1) * 3.0
+        # Inject rescue cash
+        self.account.cash_balance += rescue_capital
+        self.account.equity += rescue_capital
+        self.account.free_margin += rescue_capital
+        self.account.is_margin_called = False
+        self.account.death_reason = None
+
+    def repay_restructuring_debt(self, amount: float) -> float:
+        """Repays restructuring debt using settled cash balance."""
+        if not self.account.is_in_restructuring or self.account.restructuring_debt <= 0:
+            return 0.0
+        repay_amt = min(amount, self.account.restructuring_debt, max(0.0, self.account.cash_balance))
+        self.account.cash_balance -= repay_amt
+        self.account.equity -= repay_amt
+        self.account.free_margin -= repay_amt
+        self.account.restructuring_debt -= repay_amt
+        if self.account.restructuring_debt <= 0.01:
+            self.account.restructuring_debt = 0.0
+            self.account.is_in_restructuring = False
+        return repay_amt
+
+    def accrue_debt_interest(self, elapsed_days: float = 1.0):
+        """Accrues compounding daily interest on restructuring debt."""
+        if self.account.is_in_restructuring and self.account.restructuring_debt > 0:
+            daily_rate = (self.account.debt_interest_rate_pct / 100.0) / 365.0
+            accrued = self.account.restructuring_debt * daily_rate * elapsed_days
+            self.account.restructuring_debt += accrued
 
     def execute_order(
         self,
@@ -272,7 +335,8 @@ class QuantKernel:
         effective_commission = self.commission_per_lot if commission_rate is None else commission_rate
         if not self._custom_multiplier and ticker in ASSET_MULTIPLIERS:
             self.contract_multiplier = ASSET_MULTIPLIERS[ticker]
-        lots = max(0.01, min(100.0, float(lots)))
+        max_lots = 100000.0 if (self.account.high_watermark >= 10000000.0 or self.account.equity >= 10000000.0) else 100.0
+        lots = max(0.01, min(max_lots, float(lots)))
         quotes = self.get_quotes(current_price, atr_pct, spread_multiplier)
         bid = quotes["bid"]
         ask = quotes["ask"]

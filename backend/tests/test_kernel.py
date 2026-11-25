@@ -230,3 +230,52 @@ def test_modifier_pipeline_integration():
     assert acc["total_commission_paid"] == 7.50
     assert acc["open_lots"] == 10
 
+
+def test_creditor_restructuring_post_10m():
+    """At >= $10M, catastrophic drawdowns trigger Chapter 11 Creditor Restructuring instead of instant game over."""
+    kernel = QuantKernel(starting_cash=10000000.0, margin_rate=0.02, contract_multiplier=10.0)
+    kernel.account.high_watermark = 10000000.0
+    
+    # Open large leveraged position: 100,000 lots at $100
+    kernel.execute_order("NVDA", PositionSide.BULL, 100000, 100.0, "2024-01-02")
+    
+    # Severe drop to $0.50 -> Equity plummets into deep negative
+    kernel.update_mark_to_market(0.50, atr_pct=0.05)
+    
+    # Crucial: NOT margin called! Restructuring triggered instead
+    assert kernel.account.is_margin_called is False
+    assert kernel.account.death_reason is None
+    assert kernel.account.is_in_restructuring is True
+    assert kernel.account.restructuring_breach_count == 1
+    # $5M rescue cash * 1.10 = $5.5M restructuring debt
+    assert kernel.account.restructuring_debt == 5500000.0
+    assert kernel.account.debt_interest_rate_pct == 11.75
+
+    # Accrue interest over 30 days
+    kernel.accrue_debt_interest(elapsed_days=30.0)
+    assert kernel.account.restructuring_debt > 5500000.0
+
+    # Repay debt
+    kernel.account.cash_balance = 10000000.0
+    repaid = kernel.repay_restructuring_debt(6000000.0)
+    assert repaid > 5500000.0
+    assert kernel.account.restructuring_debt == 0.0
+    assert kernel.account.is_in_restructuring is False
+
+
+def test_sovereign_too_big_to_fail_post_100m():
+    """At >= $100M, margin calls and insolvencies are permanently suppressed (Too Big To Fail)."""
+    kernel = QuantKernel(starting_cash=100000000.0, margin_rate=0.02, contract_multiplier=10.0)
+    kernel.account.high_watermark = 100000000.0
+
+    # Massive 100,000 lot position
+    kernel.execute_order("NVDA", PositionSide.BULL, 100000, 100.0, "2024-01-02")
+
+    # Catastrophic black swan event down to $1
+    kernel.update_mark_to_market(1.0, atr_pct=0.10)
+
+    # Permanent immunity: Zero margin calls
+    assert kernel.account.is_margin_called is False
+    assert kernel.account.death_reason is None
+
+

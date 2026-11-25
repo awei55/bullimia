@@ -1,6 +1,7 @@
 import { writable, derived, get } from 'svelte/store';
 import type { AccountState, LevelData, Quotes, TradeRecord, PositionSide } from '../types';
 import { soundEngine } from '../audio/soundtrack';
+import { triggerCreditorRestructuring } from './creditor_restructuring';
 
 const initialAccount: AccountState = {
   cash_balance: 1000.0, // Genesis Tutorial starts with $1,000 USD
@@ -347,7 +348,19 @@ export function updateMarkToMarket(price: number, atrPct: number = 0.02) {
     const bState = get(benefactorState);
     const isPost10k = bState.hasTriggeredWire || acc.high_watermark >= 10000.0;
 
-    if (isPost10k) {
+    if (acc.equity >= 100000000.0 || acc.high_watermark >= 100000000.0) {
+      // Phase 4 ($100M+): Too Big To Fail -> Zero margin calls permanently
+      acc.is_margin_called = false;
+      acc.death_reason = undefined;
+    } else if (acc.equity >= 10000000.0 || acc.high_watermark >= 10000000.0 || acc.isInRestructuring) {
+      // Phase 3 ($10M - $100M): Creditor Restructuring with rescue capital
+      const isBreach = acc.equity <= 0 || (acc.margin_used > 0 && acc.equity <= acc.margin_used * 0.5);
+      if (isBreach) {
+        acc.is_margin_called = false;
+        acc.death_reason = undefined;
+        triggerCreditorRestructuring(5000000.0);
+      }
+    } else if (isPost10k) {
       if (acc.equity <= 0) {
         acc.is_margin_called = true;
         acc.death_reason = 'DEAD_BROKE';
