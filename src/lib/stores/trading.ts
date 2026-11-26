@@ -76,71 +76,21 @@ let reconnectTimer: any = null;
 let tradeCounter = 1;
 
 export function initWebSocket() {
-  if (typeof window === 'undefined') return;
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.host;
-  const wsUrl = `${protocol}//${host}/ws/stream`;
-
-  try {
-    ws = new WebSocket(wsUrl);
-    ws.onopen = () => console.log('Connected to Bullimia Quant WebSocket');
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'account_update') {
-          account.set(msg.account);
-          if (msg.quotes) quotes.set(msg.quotes);
-          soundEngine.updateTelemetry(msg.account.unrealized_pnl, msg.account.open_lots, msg.account.margin_level_pct < 100);
-        } else if (msg.type === 'order_result') {
-          const res = msg.data;
-          account.set(res.account);
-          if (res.closed_trade) {
-            tradeHistory.update((h) => [...h, res.closed_trade]);
-            if (res.closed_trade.is_win) {
-              soundEngine.playWin(res.closed_trade.pnl);
-            } else {
-              soundEngine.playLoss(res.closed_trade.pnl);
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error parsing WS message:', err);
-      }
-    };
-    ws.onclose = () => {
-      clearTimeout(reconnectTimer);
-      reconnectTimer = setTimeout(initWebSocket, 4000);
-    };
-  } catch (e) {
-    // Rely on HTTP / client fallback
-  }
+  // Headless zero-dependency engine: local synchronous 60 FPS mark-to-market
 }
 
 export async function loadLevel(levelId: string, randomEpoch: boolean = false): Promise<LevelData> {
-  const query = randomEpoch ? '?random_epoch=true' : '';
   let rawData: any = null;
 
-  // 1. Try backend API
+  // 1. Static File Direct Load (public/data/)
   try {
-    const res = await fetch(`/api/level/${levelId}${query}`);
-    if (res.ok) {
-      rawData = await res.json();
+    const staticRes = await fetch(`/data/level_${levelId}.json`);
+    if (staticRes.ok) {
+      rawData = await staticRes.json();
     }
-  } catch (e) {
-    // Backend offline, fallback to static JSON
-  }
+  } catch (e) {}
 
-  // 2. Static File Fallback (public/data/)
-  if (!rawData) {
-    try {
-      const staticRes = await fetch(`/data/level_${levelId}.json`);
-      if (staticRes.ok) {
-        rawData = await staticRes.json();
-      }
-    } catch (e) {}
-  }
-
-  // 3. Last-resort fallback to NVDA
+  // 2. Last-resort fallback to NVDA
   if (!rawData) {
     try {
       const nvdaRes = await fetch('/data/level_NVDA.json');
@@ -203,25 +153,8 @@ export function executeOrder(
   atrPct: number = 0.02,
   candleIdx: number = 0
 ) {
-  // 1. Execute immediately and synchronously on client side (0ms latency, zero desync)
+  // Synchronous execution with 0ms latency and zero network desync
   clientSideExecuteOrder(ticker, side, lots, price, timestamp, atrPct, candleIdx);
-
-  // 2. Non-blocking asynchronous sync with backend if available
-  if (typeof window !== 'undefined') {
-    fetch('/api/order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ticker,
-        side,
-        lots,
-        current_price: price,
-        timestamp,
-        atr_pct: atrPct,
-        candle_idx: candleIdx,
-      }),
-    }).catch(() => {});
-  }
 }
 
 function clientSideExecuteOrder(

@@ -13,9 +13,14 @@ Whenever you begin a task, respond to a user request, or resume development in t
    - This file contains the authoritative record of active milestones, completed features, known issues, test pass rates, and the chronological changelog.
    - **Rule**: If you add, modify, or fix any component, you **MUST** update [docs/TRACKER.md](file:///D:/GitRepos/bullimia/docs/TRACKER.md) before concluding your turn.
 
-2. **Step 2: Respect the Sealed Architectural Boundary (`docs/ARCHITECTURE.md`)**
-   - Review [docs/ARCHITECTURE.md](file:///D:/GitRepos/bullimia/docs/ARCHITECTURE.md).
-   - **Zero-Presentation Rule**: `backend/bullimia_quant/kernel.py` and core client-side accounting math are pure, headless domain logic. Never mix DOM, Svelte components, PixiJS graphics, or Web Audio into financial math.
+2. **Step 2: Respect the Sealed Architectural Boundary & Dev Tracks**
+   - Review [docs/ARCHITECTURE.md](file:///D:/GitRepos/bullimia/docs/ARCHITECTURE.md), [docs/DEV_TRACKS.md](file:///D:/GitRepos/bullimia/docs/DEV_TRACKS.md), and [docs/CODING_STANDARDS.md](file:///D:/GitRepos/bullimia/docs/CODING_STANDARDS.md).
+   - **4-Track Discipline**:
+     - Track 1 (Core Loop / WebGL `engine/`)
+     - Track 2 (Economy / Stores `stores/`, `progression/`)
+     - Track 3 (Narrative / World `narrative/`, Modals)
+     - Track 4 (Systems / Rust Quant Kernel `src-tauri/`)
+   - **Zero-Presentation Rule**: Financial math is 100% headless in Rust/TypeScript. Never mix DOM, Svelte components, PixiJS graphics, or Web Audio into financial math.
    - **Modifier Pipeline**: Difficulties, character archetypes, market shocks, and minigame rewards plug in as composable modifiers evaluated into `TradeContext`, never hardcoded if/else branches in the kernel.
 
 3. **Step 3: Consult Master Design & Data Catalogs**

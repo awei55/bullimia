@@ -68,47 +68,18 @@ export class SaveManager {
       },
     };
 
-    // 1. Client LocalStorage
+    // 1. Local Persistence
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saveState));
     } catch (e) {
       console.warn('LocalStorage save failed:', e);
     }
 
-    // 2. Remote / Backend File Sync (if in browser with backend available)
-    if (typeof window !== 'undefined' && window.location?.port && window.location.port !== '3000') {
-      try {
-        await fetch('/api/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ data: saveState }),
-        }).catch(() => {});
-      } catch (e) {
-        // Backend may be offline, localStorage remains authoritative fallback
-      }
-    }
-
     return saveState;
   }
 
   public static async loadCareer(): Promise<SaveState | null> {
-    // 1. Try backend save first if backend port is defined
-    if (typeof window !== 'undefined' && window.location?.port && window.location.port !== '3000') {
-      try {
-        const res = await fetch('/api/save').catch(() => null);
-        if (res && res.ok) {
-          const body = await res.json();
-          if (body.has_save && body.data) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(body.data));
-            return body.data as SaveState;
-          }
-        }
-      } catch (e) {
-        // Fallback to local
-      }
-    }
-
-    // 2. Check LocalStorage
+    // Check LocalStorage
     try {
       const item = localStorage.getItem(STORAGE_KEY);
       if (item) {
@@ -133,11 +104,5 @@ export class SaveManager {
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch (e) {}
-
-    if (typeof window !== 'undefined' && window.location?.port && window.location.port !== '3000') {
-      try {
-        await fetch('/api/save/delete', { method: 'POST' }).catch(() => {});
-      } catch (e) {}
-    }
   }
 }
