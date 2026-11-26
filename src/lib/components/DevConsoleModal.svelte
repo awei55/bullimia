@@ -12,6 +12,7 @@
   let statusMessage = '';
 
   async function handleWarp(amount: number) {
+    (document.activeElement as HTMLElement)?.blur();
     await onWarpEquity(amount);
     statusMessage = `Warped equity to $${amount.toLocaleString()}`;
     setTimeout(() => (statusMessage = ''), 3000);

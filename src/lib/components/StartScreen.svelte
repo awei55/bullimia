@@ -83,7 +83,10 @@
       {#if savedGame}
         <button
           type="button"
-          on:click={() => onResume(savedGame)}
+          on:click={(e) => {
+            e.currentTarget.blur();
+            onResume(savedGame);
+          }}
           class="w-full py-3.5 cel-btn bg-bull hover:brightness-110 text-black font-black tracking-wider text-sm flex items-center justify-center space-x-2 cursor-pointer uppercase"
         >
           <Play class="w-4 h-4 fill-black" />
@@ -93,7 +96,10 @@
 
         <button
           type="button"
-          on:click={onStartNew}
+          on:click={(e) => {
+            e.currentTarget.blur();
+            onStartNew();
+          }}
           class="w-full py-2.5 cel-btn bg-terminal-surface hover:bg-terminal-border text-terminal-text text-xs flex items-center justify-center space-x-2 cursor-pointer uppercase"
         >
           <RotateCcw class="w-3.5 h-3.5 text-neon-amber" />
@@ -102,7 +108,10 @@
       {:else}
         <button
           type="button"
-          on:click={onStartNew}
+          on:click={(e) => {
+            e.currentTarget.blur();
+            onStartNew();
+          }}
           class="w-full py-4 cel-btn bg-bull hover:brightness-110 text-black font-black tracking-widest text-base flex items-center justify-center space-x-2 cursor-pointer uppercase shadow-[4px_4px_0px_#000]"
         >
           <Play class="w-5 h-5 fill-black" />

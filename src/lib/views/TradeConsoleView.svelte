@@ -216,11 +216,16 @@
 
       <!-- Neutral Flatten Button -->
       <button
-        on:click={onFlatten}
-        class="w-full py-1.5 bg-terminal-panel hover:bg-terminal-border border-2 border-neon-cyan/60 text-neon-cyan text-xs font-bold font-chakra transition flex items-center justify-center space-x-2 cel-btn cyber-clip-sm shadow-[2px_2px_0px_#000]"
+        type="button"
+        on:click={(e) => {
+          onFlatten();
+          e.currentTarget.blur();
+        }}
+        class="w-full py-1.5 bg-terminal-panel hover:bg-terminal-border border-2 border-neon-cyan/60 text-neon-cyan text-xs font-bold font-chakra transition flex items-center justify-center space-x-2 cel-btn cyber-clip-sm shadow-[2px_2px_0px_#000] cursor-pointer"
+        title="Neutral Cash Flattening: Exits position without reversing (ESC)"
       >
         <Shield class="w-3.5 h-3.5" />
-        <span>FLATTEN TO 100% CASH (SPACE + ESC)</span>
+        <span>FLATTEN TO 100% CASH (ESC)</span>
       </button>
     </div>
 

@@ -23,6 +23,7 @@ import {
   timeDilation,
   isTradingActive,
   account,
+  triggerHeadlineAlert,
 } from '../stores/trading';
 import { soundEngine } from '../audio/soundtrack';
 
@@ -78,6 +79,7 @@ export class BullimiaPixiEngine {
   private livePnlText: PIXI.Text | null = null;
   private boundKeydown: ((e: KeyboardEvent) => void) | null = null;
   private boundKeyup: ((e: KeyboardEvent) => void) | null = null;
+  private resizeObserver: ResizeObserver | null = null;
 
   // Simulation State
   private level: LevelData | null = null;
@@ -220,6 +222,19 @@ export class BullimiaPixiEngine {
 
     this.setupInputListeners();
 
+    // Attach ResizeObserver to automatically resize WebGL renderer when container changes width/height
+    if (typeof ResizeObserver !== 'undefined' && this.container) {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect;
+          if (width > 0 && height > 0) {
+            this.resize(width, height);
+          }
+        }
+      });
+      this.resizeObserver.observe(this.container);
+    }
+
     // Listen to account for margin call death animation
     this.accountUnsub = account.subscribe((acc) => {
       if (acc.is_margin_called && !this.isDead) {
@@ -272,6 +287,20 @@ export class BullimiaPixiEngine {
     this.livePnlBadgeGfx.clear();
     this.activeTradeLineLayer.clear();
     this.orderBadgeGfx.clear();
+
+    if (this.candles.length > 0) {
+      const currentIdx = Math.max(0, Math.min(Math.floor(this.playerProgress), this.candles.length - 1));
+      const c = this.candles[currentIdx];
+      if (c) {
+        this.playerX = currentIdx * this.candleStep;
+        this.playerY = this.side === 'BULL' ? this.priceToScreenY(c.high) - 24 : this.priceToScreenY(c.low) + 24;
+      }
+    }
+
+    const screenW = this.app?.screen.width && this.app.screen.width > 0 ? this.app.screen.width : 1200;
+    const screenH = this.app?.screen.height && this.app.screen.height > 0 ? this.app.screen.height : 700;
+    this.cameraX = this.playerX - screenW * 0.5;
+    this.cameraY = this.playerY - screenH * 0.5;
   }
 
   public addShake(intensity: number = 6, duration: number = 0.25) {
@@ -340,55 +369,98 @@ export class BullimiaPixiEngine {
   }
 
   public priceToScreenY(price: number): number {
-    const centerY = (this.app?.screen.height || 600) / 2;
+    const screenH = (this.app?.screen.height && this.app.screen.height > 0)
+      ? this.app.screen.height
+      : (this.container?.clientHeight && this.container.clientHeight > 0 ? this.container.clientHeight : 600);
+    const centerY = screenH / 2;
     if (price <= 0 || this.initialPrice <= 0) return centerY;
     const logRatio = Math.log(price / this.initialPrice);
     return centerY - logRatio * this.logScale;
   }
 
+  public resize(width?: number, height?: number) {
+    if (!this.app || !this.app.renderer || !this.container) return;
+    const w = width ?? this.container.clientWidth;
+    const h = height ?? this.container.clientHeight;
+    if (w <= 0 || h <= 0) return;
+
+    this.app.renderer.resize(w, h);
+
+    const screenW = this.app.screen.width;
+    const screenH = this.app.screen.height;
+    this.cameraX = this.playerX - screenW * 0.5;
+    this.cameraY = this.playerY - screenH * 0.5;
+  }
+
   private setupInputListeners() {
     this.boundKeydown = (e: KeyboardEvent) => {
       if (['input', 'textarea'].includes((document.activeElement?.tagName || '').toLowerCase())) return;
-      if (e.code === 'Space' && !e.repeat) {
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        (document.activeElement as HTMLElement)?.blur();
+
+        if (e.repeat) return;
         if (!get(isTradingActive)) return;
         soundEngine.resume();
         this.spaceHeld = true;
         this.chargeStartTime = performance.now();
         isCharging.set(true);
         chargeProgress.set(0.0);
-      } else if (e.code === 'Escape' && this.spaceHeld) {
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        (document.activeElement as HTMLElement)?.blur();
+
         if (!get(isTradingActive)) return;
-        this.flattenToCash();
-        this.spaceHeld = false;
-        isCharging.set(false);
-        chargeProgress.set(0.0);
+
+        const acc = get(account);
+        const isUnlocked = acc.high_watermark >= 1000000 || acc.equity >= 1000000;
+        if (isUnlocked) {
+          if (acc.side !== 'FLAT') {
+            this.flattenToCash();
+          }
+          this.spaceHeld = false;
+          isCharging.set(false);
+          chargeProgress.set(0.0);
+        } else {
+          triggerHeadlineAlert('🔒 CASH FLATTENING LOCKED: Requires Phase 2 Prop Desk ($1,000,000)');
+        }
       }
     };
 
     this.boundKeyup = (e: KeyboardEvent) => {
       if (['input', 'textarea'].includes((document.activeElement?.tagName || '').toLowerCase())) return;
-      if (e.code === 'Space' && this.spaceHeld) {
-        if (!get(isTradingActive)) return;
-        const duration = (performance.now() - this.chargeStartTime) / 1000;
 
-        // Tap deadzone: Quick taps under 200ms default to base lot
-        const currentMode = get(lotMode);
-        let lots = currentMode === 'MICROLOT' ? 0.01 : 1.0;
-        if (duration > 0.20) {
-          const chargeDuration = duration - 0.20;
-          const ratio = Math.min(1.0, chargeDuration / 2.0); // 2.0s hold to charge to max
-          if (currentMode === 'MICROLOT') {
-            lots = Number((0.01 + Math.pow(ratio, 1.4) * 0.49).toFixed(2));
-          } else {
-            lots = Math.max(1, Math.min(100, Math.floor(1 + Math.pow(ratio, 1.4) * 99)));
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (this.spaceHeld) {
+          if (!get(isTradingActive)) {
+            this.spaceHeld = false;
+            isCharging.set(false);
+            chargeProgress.set(0.0);
+            return;
           }
+          const duration = (performance.now() - this.chargeStartTime) / 1000;
+
+          // Tap deadzone: Quick taps under 200ms default to base lot
+          const currentMode = get(lotMode);
+          let lots = currentMode === 'MICROLOT' ? 0.01 : 1.0;
+          if (duration > 0.20) {
+            const chargeDuration = duration - 0.20;
+            const ratio = Math.min(1.0, chargeDuration / 2.0); // 2.0s hold to charge to max
+            if (currentMode === 'MICROLOT') {
+              lots = Number((0.01 + Math.pow(ratio, 1.4) * 0.49).toFixed(2));
+            } else {
+              lots = Math.max(1, Math.min(100, Math.floor(1 + Math.pow(ratio, 1.4) * 99)));
+            }
+          }
+
+          this.flipAndExecute(lots);
+
+          this.spaceHeld = false;
+          isCharging.set(false);
+          chargeProgress.set(0.0);
         }
-
-        this.flipAndExecute(lots);
-
-        this.spaceHeld = false;
-        isCharging.set(false);
-        chargeProgress.set(0.0);
       }
     };
 
@@ -404,6 +476,9 @@ export class BullimiaPixiEngine {
     executeOrder(this.level.ticker, 'FLAT', 1, this.currentPrice, candle.date, this.avgAtrPct, currentIdx);
     this.addShake(4, 0.2);
     this.spawnSparks(this.playerX, this.playerY, 0x00e5ff, 25);
+    this.bullContainer.visible = true;
+    this.bearContainer.visible = false;
+    this.bullContainer.alpha = 0.65;
   }
 
   private flipAndExecute(lots: number) {
@@ -419,6 +494,8 @@ export class BullimiaPixiEngine {
 
     this.bullContainer.visible = this.side === 'BULL';
     this.bearContainer.visible = this.side === 'BEAR';
+    this.bullContainer.alpha = 1.0;
+    this.bearContainer.alpha = 1.0;
 
     executeOrder(this.level.ticker, nextSide, lots, this.currentPrice, candle.date, this.avgAtrPct, currentIdx);
 
@@ -429,6 +506,7 @@ export class BullimiaPixiEngine {
 
   private update(dt: number) {
     if (!this.level || this.candles.length === 0) return;
+    if (this.container && (this.container.clientWidth <= 0 || this.container.clientHeight <= 0)) return;
 
     // Handle Character Death Animation when Margin Called
     if (this.isDead) {
@@ -857,8 +935,9 @@ export class BullimiaPixiEngine {
   }
 
   private render() {
-    const screenW = this.app?.screen.width || 1200;
-    const screenH = this.app?.screen.height || 700;
+    if (this.container && (this.container.clientWidth <= 0 || this.container.clientHeight <= 0)) return;
+    const screenW = this.app?.screen.width && this.app.screen.width > 0 ? this.app.screen.width : (this.container?.clientWidth || 1200);
+    const screenH = this.app?.screen.height && this.app.screen.height > 0 ? this.app.screen.height : (this.container?.clientHeight || 700);
 
     // 1. Render Multi-Layer Parallax Background
     this.renderBackground(screenW, screenH);
@@ -1164,6 +1243,10 @@ export class BullimiaPixiEngine {
     if (this.boundKeyup) {
       window.removeEventListener('keyup', this.boundKeyup);
       this.boundKeyup = null;
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
     }
     if (this.accountUnsub) {
       this.accountUnsub();

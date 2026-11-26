@@ -86,6 +86,14 @@
       }
       if (e.key === '`' || e.key === '~') {
         isDevConsoleOpen = !isDevConsoleOpen;
+      } else if (e.key === 'Escape') {
+        if (isDevConsoleOpen || isOptionsOpen || isTradeLogOpen) {
+          isDevConsoleOpen = false;
+          isOptionsOpen = false;
+          isTradeLogOpen = false;
+          (document.activeElement as HTMLElement)?.blur();
+          return;
+        }
       } else if (e.key === 't' || e.key === 'T') {
         handleJumpEpoch();
       } else if (e.key === 'm' || e.key === 'M') {
@@ -132,6 +140,7 @@
 
   async function handleStartNewCareer() {
     isTradingActive.set(false);
+    (document.activeElement as HTMLElement)?.blur();
     await SaveManager.deleteCareer();
     await resetCareer(1000.0); // Genesis Tutorial starts with $1,000 USD
     terminalShopState.set(initialTerminalShopState);
@@ -145,10 +154,12 @@
       engine.setLevel(data, 0, null, true);
     }
     isTradingActive.set(true);
+    (document.activeElement as HTMLElement)?.blur();
   }
 
   async function handleResumeCareer(save: SaveState) {
     isTradingActive.set(false);
+    (document.activeElement as HTMLElement)?.blur();
     account.set(save.account);
     tradeHistory.set(save.tradeHistory || []);
     crtEnabled = save.settings?.crtEnabled ?? true;
@@ -192,6 +203,7 @@
       engine.setLevel(levelData, save.playerProgress, save.openPosition);
     }
     isTradingActive.set(true);
+    (document.activeElement as HTMLElement)?.blur();
   }
 
   async function triggerSave() {
@@ -302,6 +314,11 @@
       triggerHeadlineAlert('⚡ BREAKING: MACRO VOLATILITY ALERTS UNLOCKED ($100,000 MILESTONE REACHED)');
     }
 
+    // Reset character state if previously margin called/dead
+    if (amount > 0 && engine) {
+      engine.resetCharacterState();
+    }
+
     // Auto-switch view based on equity tier
     if (amount >= 100000000) {
       activeView = 'PORTFOLIO';
@@ -313,6 +330,13 @@
       activeView = 'CHART';
     }
 
+    // Blur active element so spacebar doesn't ghost-click buttons
+    (document.activeElement as HTMLElement)?.blur();
+
+    requestAnimationFrame(() => {
+      engine?.resize();
+    });
+
     await triggerSave();
   }
 </script>
@@ -322,7 +346,13 @@
   {#if !inStartMenu}
     <HUD
       {activeView}
-      onChangeView={(v) => (activeView = v)}
+      onChangeView={(v) => {
+        activeView = v;
+        (document.activeElement as HTMLElement)?.blur();
+        requestAnimationFrame(() => {
+          setTimeout(() => engine?.resize(), 50);
+        });
+      }}
       onOpenMenu={handleOpenMenu}
       onOpenDevConsole={() => (isDevConsoleOpen = true)}
       onOpenOptions={() => (isOptionsOpen = true)}
@@ -338,7 +368,11 @@
 
     <!-- 1. Chart View / Split Autoscroller (Canvas Container NEVER Unmounted) -->
     <div
-      class="relative transition-all duration-300 {activeView === 'CHART' ? 'w-full h-full' : activeView === 'CONSOLE' ? 'w-7/12 h-full' : 'hidden'}"
+      class="relative transition-all duration-300 {activeView === 'CHART'
+        ? 'w-full h-full'
+        : activeView === 'CONSOLE'
+        ? 'w-7/12 h-full'
+        : 'w-0 h-0 opacity-0 pointer-events-none absolute'}"
     >
       <div bind:this={canvasContainer} class="w-full h-full relative overflow-hidden bg-terminal-bg"></div>
     </div>
@@ -396,17 +430,29 @@
   <OptionsModal
     isOpen={isOptionsOpen}
     bind:crtEnabled
-    onClose={() => (isOptionsOpen = false)}
+    onClose={() => {
+      isOptionsOpen = false;
+      (document.activeElement as HTMLElement)?.blur();
+    }}
     onResetCareer={handleStartNewCareer}
   />
 
   <DevConsoleModal
     isOpen={isDevConsoleOpen}
-    onClose={() => (isDevConsoleOpen = false)}
+    onClose={() => {
+      isDevConsoleOpen = false;
+      (document.activeElement as HTMLElement)?.blur();
+    }}
     onWarpEquity={handleWarpEquity}
     onForceSave={triggerSave}
   />
 
-  <TradeLogModal isOpen={isTradeLogOpen} onClose={() => (isTradeLogOpen = false)} />
+  <TradeLogModal
+    isOpen={isTradeLogOpen}
+    onClose={() => {
+      isTradeLogOpen = false;
+      (document.activeElement as HTMLElement)?.blur();
+    }}
+  />
   <GameOverModal onRestart={handleStartNewCareer} />
 </main>

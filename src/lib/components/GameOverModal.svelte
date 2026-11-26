@@ -20,11 +20,13 @@
   async function handleRestart() {
     if (isRestarting) return;
     isRestarting = true;
+    (document.activeElement as HTMLElement)?.blur();
     try {
       showModal = false;
       await onRestart();
     } finally {
       isRestarting = false;
+      (document.activeElement as HTMLElement)?.blur();
     }
   }
 </script>
